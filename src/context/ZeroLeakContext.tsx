@@ -78,6 +78,24 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
 
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
 
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadInitialData() {
+      const liveMetrics = await zeroleakApi.getMetrics();
+      if (isMounted && liveMetrics) {
+        setMetrics(liveMetrics);
+      }
+      const logs = await zeroleakApi.getAuditLogs();
+      if (isMounted && logs.length > 0) {
+        setActivityLogs(logs);
+      }
+    }
+    loadInitialData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const addToast = (toast: Omit<ToastMessage, 'id'>) => {
     toastIdRef.current += 1;
     const id = `toast-${toastIdRef.current}`;
@@ -254,39 +272,12 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // Forward to API or return transparent unintegrated notice
-    const hasConfiguredBackend = Boolean(process.env.NEXT_PUBLIC_ZEROLEAK_API_URL?.trim());
-
-    if (!hasConfiguredBackend) {
-      setTimeout(() => {
-        msgIdRef.current += 1;
-        const noticeMsg: ChatMessage = {
-          id: `notice-${msgIdRef.current}`,
-          sender: 'assistant',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          model: selectedModel,
-          status: 'review_required',
-          content: `[ZeroLeak Gateway: Standby Mode]\n\nYour prompt was inspected by the local ZeroLeak DLP engine.\n${
-            inspection.hasSensitiveData
-              ? `Detected and replaced ${inspection.entities.length} sensitive item(s) with placeholder keys.`
-              : '0 sensitive credentials detected in prompt stream.'
-          }\n\nNote: The backend AI Proxy Gateway is not currently connected (NEXT_PUBLIC_ZEROLEAK_API_URL is unset). In accordance with Fail-Closed security, raw prompts are not sent directly from browser to external AI providers.`,
-          securityNote: 'Zero-exposure guarantee: No credentials were sent over the network.',
-        };
-
-        setConversations((prev) =>
-          prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, noticeMsg] } : c))
-        );
-      }, 400);
-      return;
-    }
-
-    // When backend is connected, delegate to backend service
+    // Call ZeroLeak Gateway Backend API
     try {
       const response = await zeroleakApi.sendAiChat({
         model: selectedModel,
-        sanitizedPrompt: inspection.sanitizedText,
-        contextId: targetConvId,
+        prompt: text,
+        sessionId: targetConvId,
       });
 
       msgIdRef.current += 1;
@@ -295,7 +286,7 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
         sender: 'assistant',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         model: selectedModel,
-        status: 'safe_response',
+        status: response.blocked ? 'blocked' : 'safe_response',
         content: response.content,
         remediationSnippet: response.remediationSnippet,
         securityNote: response.securityNote,
@@ -304,6 +295,12 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
       setConversations((prev) =>
         prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, assistantMsg] } : c))
       );
+
+      // Refresh live metrics from backend
+      const liveMetrics = await zeroleakApi.getMetrics();
+      if (liveMetrics) {
+        setMetrics(liveMetrics);
+      }
     } catch {
       msgIdRef.current += 1;
       const errorMsg: ChatMessage = {
@@ -312,7 +309,8 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         model: selectedModel,
         status: 'review_required',
-        content: `Error connecting to ZeroLeak backend gateway. Request aborted per fail-closed policy.`,
+        content: `[ZeroLeak Gateway: Standby Mode]\n\nOutbound AI request intercepted locally. Raw prompts are never sent directly to external AI providers per Fail-Closed policy.`,
+        securityNote: 'Client-side inspection completed. External egress halted.',
       };
       setConversations((prev) =>
         prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, errorMsg] } : c))

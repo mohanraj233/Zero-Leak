@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useZeroLeak } from '@/context/ZeroLeakContext';
+import { zeroleakApi } from '@/services/zeroleak-api';
 import { Play, X, CheckCircle2, AlertCircle, Terminal, Copy, Check } from 'lucide-react';
 
 export function RegexSandboxModal() {
@@ -24,29 +25,29 @@ export function RegexSandboxModal() {
 
   if (!regexModalOpen) return null;
 
-  const handleTest = () => {
-    const startTime = performance.now();
+  const handleTest = async () => {
     try {
-      const matches: string[] = [];
-      let match;
+      const res = await zeroleakApi.validateRegex({
+        regexPattern: pattern,
+        testInput: sampleText,
+      });
+
+      let replaced = sampleText;
       let counter = 1;
-
-      // Safe bounded regex execution
-      const regexCopy = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
-      while ((match = regexCopy.exec(sampleText)) !== null) {
-        matches.push(match[0]);
-        if (matches.length > 50) break; // bounded
+      try {
+        const regexCopy = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
+        replaced = sampleText.replace(regexCopy, () => `<REDACTED_TOKEN_${counter++}>`);
+      } catch {
+        // use original text
       }
-
-      const replaced = sampleText.replace(regexCopy, () => `<REDACTED_SECRET_${counter++}>`);
-      const executionTime = Math.max(0.1, Number((performance.now() - startTime).toFixed(2)));
 
       setTestResult({
         tested: true,
-        valid: true,
-        matches,
+        valid: res.valid,
+        matches: res.matches || [],
         replacedText: replaced,
-        executionTimeMs: executionTime,
+        executionTimeMs: res.executionTimeMs || 0.1,
+        error: res.error,
       });
     } catch (err: unknown) {
       setTestResult({

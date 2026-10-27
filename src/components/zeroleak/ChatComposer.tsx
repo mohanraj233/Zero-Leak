@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, KeyboardEvent } from 'react';
 import { useZeroLeak } from '@/context/ZeroLeakContext';
+import { zeroleakApi } from '@/services/zeroleak-api';
 import {
   Paperclip,
   Send,
@@ -88,6 +89,18 @@ export function ChatComposer() {
     setAttachedFiles([]);
 
     try {
+      if (filesToSend.length > 0) {
+        for (const f of filesToSend) {
+          const res = await zeroleakApi.uploadFile(f);
+          if (res) {
+            addToast({
+              type: res.status === 'blocked' ? 'error' : 'success',
+              title: res.status === 'blocked' ? 'File Blocked' : 'File Sanitized',
+              message: `${res.originalFilename}: ${res.redactedCount} token(s) permanently redacted in output.`,
+            });
+          }
+        }
+      }
       await sendMessage(contentToSend, filesToSend);
     } finally {
       setIsSending(false);

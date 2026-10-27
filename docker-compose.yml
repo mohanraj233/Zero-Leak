@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zeroleak-postgres
+    environment:
+      POSTGRES_USER: neondb_owner
+      POSTGRES_PASSWORD: localdevpassword
+      POSTGRES_DB: neondb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  file-processor:
+    build:
+      context: ./file-processor
+      dockerfile: Dockerfile
+    container_name: zeroleak-file-processor
+    environment:
+      PORT: 8000
+      HOST: 0.0.0.0
+      INTERNAL_SERVICE_TOKEN: zeroleak_dev_internal_token_secure_sandbox
+    ports:
+      - "8000:8000"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zeroleak-backend
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      FRONTEND_ORIGIN: http://localhost:3000
+      DATABASE_URL: postgresql://neondb_owner:localdevpassword@postgres:5432/neondb
+      PRESIDIO_SERVICE_URL: http://file-processor:8000
+      INTERNAL_SERVICE_TOKEN: zeroleak_dev_internal_token_secure_sandbox
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: gemini-2.5-flash
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - file-processor
+
+volumes:
+  pgdata:

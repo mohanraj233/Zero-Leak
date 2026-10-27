@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZeroLeak AI — Sensitive Information Detection & Redaction Platform
 
-## Getting Started
+> Module 15 of VibeProofLens: Dual-mode AI Privacy Firewall, Reversible Redaction Proxy & Permanent Document Sanitization Engine.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. Overview
+ZeroLeak AI intercepts outbound Large Language Model interactions, code snippets, logs, and uploaded documents before they cross your network perimeter. It detects sensitive credentials, personal identifiable information (PII), and proprietary tokens using a hybrid multi-layer engine (Regex + Microsoft Presidio + Gitleaks), redacts them using ephemeral request-scoped surrogate placeholders, passes sanitized content to Google Gemini, inspects the response for echoed secrets, and selectively restores allowed placeholders for human readability.
+
+---
+
+## 2. Technology Stack
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS
+- **Backend Gateway**: Node.js, Express.js, TypeScript, Zod, Helmet, CORS, Rate Limiting
+- **Database & ORM**: **Neon PostgreSQL with Drizzle ORM**, Drizzle Kit, TypeScript migrations
+- **AI Integration**: Official Google Gemini SDK (`@google/generative-ai`), model `gemini-2.5-flash`
+- **File Redaction Microservice**: Python FastAPI, PyMuPDF, Pillow, pytesseract, python-docx, openpyxl, python-pptx
+
+---
+
+## 3. Directory Layout
+```
+Zero Leak/
+├── backend/                  # Node.js + Express Gateway Service
+│   ├── src/
+│   │   ├── config/           # Environment validation (Zod)
+│   │   ├── db/               # Drizzle ORM schema, Neon connection & seed
+│   │   ├── middleware/       # Auth, Rate limiting, Error handler, Request ID
+│   │   ├── routes/           # REST endpoints (/health, /inspect, /redact, /ai-chat, etc.)
+│   │   ├── services/         # Detection, Redaction, Gemini, Placeholder, Audit
+│   │   └── types/            # TypeScript domain types
+│   ├── tests/                # Jest & Supertest test suite (17 passing tests)
+│   ├── drizzle/              # Drizzle migrations
+│   ├── .env.example          # Backend environment variables template
+│   └── package.json
+│
+├── file-processor/           # Python FastAPI Document & Image Redaction Microservice
+│   ├── app/
+│   │   ├── detectors/        # Regex & Presidio analyzer
+│   │   ├── redactors/        # PyMuPDF, Pillow, docx, xlsx, pptx redactors
+│   │   ├── routes/           # /health, /api/v1/presidio, /api/v1/files/redact
+│   │   └── main.py
+│   ├── requirements.txt      # Python dependencies
+│   ├── Dockerfile
+│   └── .env.example
+│
+├── docs/                     # Comprehensive Architecture & Technical Docs
+│   ├── architecture.md       # Topology and security boundaries
+│   ├── api-reference.md      # REST API request/response specifications
+│   ├── database-schema.md    # Drizzle schema, ERD, and tables
+│   ├── frontend-backend-map.md # Mapping UI actions to endpoints
+│   ├── implementation-plan.md # Phase tracking & checklist
+│   ├── security-model.md     # Defensive invariants & fail-closed policy
+│   ├── testing.md            # Automated testing strategy
+│   └── troubleshooting.md   # Common errors and resolutions
+│
+├── src/                      # Next.js 16 Frontend UI
+│   ├── app/                  # App Router pages (/overview, /chat, /policy)
+│   ├── components/zeroleak/  # Preserved UI cards, charts, chat composer, modals
+│   ├── context/              # ZeroLeakContext connected to live backend API
+│   └── services/             # zeroleak-api.ts API client
+│
+├── docker-compose.yml        # Docker Compose configuration for multi-service stack
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. Getting Started Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Frontend Setup
+```bash
+# In the root directory
+npm install
+npm run dev
+# Accessible at http://localhost:3000
+```
 
-## Learn More
+### 2. Backend Gateway Setup
+```bash
+cd backend
+npm install
+cp .env.example .env
+# Configure GEMINI_API_KEY and DATABASE_URL in .env if available
+npm run build
+npm start
+# Server runs at http://localhost:4000
+# Health check: http://localhost:4000/api/v1/zeroleak/health
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Running Backend Tests
+```bash
+cd backend
+npm test
+# Executes 17 unit, integration, and security regression tests
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Running with Docker Compose
+```bash
+docker-compose up --build
+```
+This launches the PostgreSQL database, the Python file-processing microservice, and the Node.js Express Gateway together.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 5. Security Principles & Non-Negotiable Rules
+- **Fail-Closed Guarantee**: Any detector outage, network timeout, or residual secret post-redaction halts external AI transmission immediately.
+- **Zero Raw Secret Persistence**: Original prompt strings, secret tokens, and replacement dictionaries are NEVER stored in PostgreSQL or audit logs.
+- **Ephemeral RAM Dictionary**: Placeholders mappings are held exclusively in server memory with an auto-expiring 300s TTL.
+- **Permanent File Sanitization**: Redacted PDFs and images have underlying binary data permanently deleted and garbage-collected, preventing forensic recovery.
