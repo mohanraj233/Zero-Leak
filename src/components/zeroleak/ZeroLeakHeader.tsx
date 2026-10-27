@@ -19,15 +19,15 @@ interface ZeroLeakHeaderProps {
 export function ZeroLeakHeader({
   pageTitle,
   pageSubtitle,
-  badgeText = 'Protection Guard Active (v2.4 Engine)',
+  badgeText = 'Protection Guard Standby (v2.4 Engine)',
 }: ZeroLeakHeaderProps) {
   const { selectedModel, setSelectedModel, setAuditModalOpen } = useZeroLeak();
 
   const modelOptions = [
-    'Gemini 3.8 Flash (Medium) Fast & Secure',
-    'Claude 3.5 Sonnet',
-    'GPT-OSS 120B',
-    'Claude Opus 4.6',
+    'Gemini 3.8 Flash (Server Proxy)',
+    'Claude 3.5 Sonnet (Proxy)',
+    'GPT-OSS 120B (Proxy)',
+    'Claude Opus 4.6 (Proxy)',
   ];
 
   return (
@@ -38,8 +38,8 @@ export function ZeroLeakHeader({
           <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-200/70 px-2 py-0.5 rounded-md font-mono">
             ZeroLeak AI DLP Module
           </span>
-          <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-full font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
             {badgeText}
           </span>
         </div>
@@ -51,7 +51,7 @@ export function ZeroLeakHeader({
         )}
       </div>
 
-      {/* Global Search Bar (Matching reference ⌘K search) */}
+      {/* Global Search Bar (⌘K search) */}
       <div className="hidden lg:flex items-center relative max-w-xs w-full">
         <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
         <input
@@ -76,7 +76,7 @@ export function ZeroLeakHeader({
 
           <div className="absolute right-0 top-full mt-1.5 w-64 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 hidden group-hover:block hover:block z-50">
             <div className="px-2.5 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
-              Outbound Monitored LLMs
+              Target Monitored Models
             </div>
             {modelOptions.map((model) => (
               <button

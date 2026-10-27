@@ -115,9 +115,18 @@ export function RecentActivityTable() {
           <tbody className="divide-y divide-slate-100">
             {filteredLogs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-slate-400">
-                  <Filter className="w-6 h-6 mx-auto mb-1 text-slate-300" />
-                  No audit logs matching this filter.
+                <td colSpan={7} className="text-center py-12 text-slate-400">
+                  <Filter className="w-7 h-7 mx-auto mb-2 text-slate-300" />
+                  <p className="text-xs font-semibold text-slate-700">
+                    {activityLogs.length === 0
+                      ? 'No activity logged yet'
+                      : 'No audit logs matching this filter'}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {activityLogs.length === 0
+                      ? 'Telemetry and sanitization records will automatically record here when prompts are inspected.'
+                      : 'Try adjusting your search criteria or resetting filters.'}
+                  </p>
                 </td>
               </tr>
             ) : (

@@ -8,7 +8,7 @@
  */
 
 import { InspectionResult, PolicyRule } from '@/types/zeroleak';
-import { inspectAndRedactText, getSimulatedAiResponse } from './zeroleak-mock';
+import { inspectAndRedactText } from './zeroleak-mock';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_ZEROLEAK_API_URL || '';
 
@@ -45,7 +45,7 @@ class ZeroLeakApiClient {
    */
   async inspect(req: InspectRequest): Promise<InspectionResult> {
     if (!this.isConfigured()) {
-      // Offline fallback: Use client-side safe inspector
+      // Local fallback: Safe bounded pattern inspection
       return inspectAndRedactText(req.payload, req.policyRules);
     }
 
@@ -103,9 +103,10 @@ class ZeroLeakApiClient {
     securityNote?: string;
   }> {
     if (!this.isConfigured()) {
-      // Simulate network latency (400ms - 800ms)
-      await new Promise((resolve) => setTimeout(resolve, 550));
-      return getSimulatedAiResponse(req.sanitizedPrompt, req.model);
+      return {
+        content: `[ZeroLeak Gateway: Standby Mode]\n\nOutbound AI request intercepted locally. No remote AI Gateway backend is connected. To transmit sanitized payloads to an LLM provider, set NEXT_PUBLIC_ZEROLEAK_API_URL to your backend gateway service.`,
+        securityNote: 'Client-side inspection completed. External egress halted per Fail-Closed policy.',
+      };
     }
 
     try {
@@ -121,7 +122,10 @@ class ZeroLeakApiClient {
 
       return await response.json();
     } catch {
-      return getSimulatedAiResponse(req.sanitizedPrompt, req.model);
+      return {
+        content: `[ZeroLeak Gateway: Connection Error]\n\nFailed to reach the configured AI Gateway backend endpoint. Outbound egress blocked.`,
+        securityNote: 'Network error communicating with ZeroLeak proxy. Fail-closed safeguard engaged.',
+      };
     }
   }
 

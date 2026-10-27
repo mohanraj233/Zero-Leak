@@ -133,8 +133,10 @@ export default function PolicySettingsPage() {
                   / {metrics.totalGatewaysCount} targets
                 </span>
               </div>
-              <div className="text-[11px] text-slate-600 font-medium mt-1">
-                66.7% AI egress sealed • Claude / Gemini
+              <div className="text-[11px] text-slate-500 font-medium mt-1">
+                {metrics.monitoredGatewaysCount > 0
+                  ? `${((metrics.monitoredGatewaysCount / (metrics.totalGatewaysCount || 1)) * 100).toFixed(0)}% AI egress sealed`
+                  : 'Awaiting Gateway Integration'}
               </div>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">

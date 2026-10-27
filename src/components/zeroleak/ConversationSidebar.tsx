@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useZeroLeak } from '@/context/ZeroLeakContext';
-import { Plus, Search, Lock } from 'lucide-react';
+import { Plus, Search, Lock, MessageSquarePlus } from 'lucide-react';
 
 export function ConversationSidebar() {
   const {
@@ -70,117 +70,137 @@ export function ConversationSidebar() {
         </div>
       </div>
 
-      {/* Grouped Conversations */}
+      {/* Grouped Conversations or Empty State */}
       <div className="flex-1 overflow-y-auto p-2 space-y-4">
-        {/* Today */}
-        {todayList.length > 0 && (
-          <div>
-            <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
-              Today
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+            <div className="w-10 h-10 rounded-full bg-slate-200/80 flex items-center justify-center text-slate-400 mb-2">
+              <MessageSquarePlus className="w-5 h-5 text-slate-500" />
             </div>
-            <div className="space-y-1">
-              {todayList.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
-                  className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
-                    activeConversationId === conv.id
-                      ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
-                      : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
-                    <span className="text-[10px] text-slate-400 whitespace-nowrap">{conv.timestamp}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-[11px]">
-                    <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
-                    {conv.status === 'redacted' && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                        {conv.redactedCount ?? 3} Redacted
-                      </span>
-                    )}
-                    {conv.status === 'blocked' && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
-                        Blocked
-                      </span>
-                    )}
-                    {conv.status === 'clean' && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Clean ✓
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
+            <p className="text-xs font-bold text-slate-700">No conversations yet</p>
+            <p className="text-[11px] text-slate-400 mt-1 max-w-[190px] leading-relaxed">
+              Your prompts and attached code will be checked for secrets before transmission.
+            </p>
+            <button
+              onClick={createNewChat}
+              className="mt-3.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors"
+            >
+              Start New Chat
+            </button>
           </div>
-        )}
+        ) : (
+          <>
+            {/* Today */}
+            {todayList.length > 0 && (
+              <div>
+                <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
+                  Today
+                </div>
+                <div className="space-y-1">
+                  {todayList.map((conv) => (
+                    <button
+                      key={conv.id}
+                      onClick={() => setActiveConversationId(conv.id)}
+                      className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
+                        activeConversationId === conv.id
+                          ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
+                          : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">{conv.timestamp}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1 text-[11px]">
+                        <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
+                        {conv.status === 'redacted' && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                            {conv.redactedCount ?? 1} Redacted
+                          </span>
+                        )}
+                        {conv.status === 'blocked' && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                            Blocked
+                          </span>
+                        )}
+                        {conv.status === 'clean' && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Clean ✓
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Yesterday */}
-        {yesterdayList.length > 0 && (
-          <div>
-            <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
-              Yesterday
-            </div>
-            <div className="space-y-1">
-              {yesterdayList.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
-                  className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
-                    activeConversationId === conv.id
-                      ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
-                      : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
-                    <span className="text-[10px] text-slate-400">{conv.timestamp}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-[11px]">
-                    <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
-                    <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                      {conv.redactedCount ?? 2} Redacted
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+            {/* Yesterday */}
+            {yesterdayList.length > 0 && (
+              <div>
+                <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
+                  Yesterday
+                </div>
+                <div className="space-y-1">
+                  {yesterdayList.map((conv) => (
+                    <button
+                      key={conv.id}
+                      onClick={() => setActiveConversationId(conv.id)}
+                      className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
+                        activeConversationId === conv.id
+                          ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
+                          : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
+                        <span className="text-[10px] text-slate-400">{conv.timestamp}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1 text-[11px]">
+                        <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                          {conv.redactedCount ?? 1} Redacted
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Previous 7 Days */}
-        {prevList.length > 0 && (
-          <div>
-            <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
-              Previous 7 Days
-            </div>
-            <div className="space-y-1">
-              {prevList.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => setActiveConversationId(conv.id)}
-                  className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
-                    activeConversationId === conv.id
-                      ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
-                      : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-1">
-                    <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
-                    <span className="text-[10px] text-slate-400">{conv.timestamp}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-[11px]">
-                    <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
-                    <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                      {conv.redactedCount ?? 4} Redacted
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+            {/* Previous 7 Days */}
+            {prevList.length > 0 && (
+              <div>
+                <div className="px-2 mb-1 text-[10px] font-bold text-slate-600 uppercase tracking-wider font-mono">
+                  Previous 7 Days
+                </div>
+                <div className="space-y-1">
+                  {prevList.map((conv) => (
+                    <button
+                      key={conv.id}
+                      onClick={() => setActiveConversationId(conv.id)}
+                      className={`w-full text-left p-2.5 rounded-lg text-xs transition-all ${
+                        activeConversationId === conv.id
+                          ? 'bg-white border border-slate-200/90 shadow-2xs text-slate-900 font-semibold'
+                          : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <span className="truncate flex-1 font-medium text-slate-900">{conv.title}</span>
+                        <span className="text-[10px] text-slate-400">{conv.timestamp}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1 text-[11px]">
+                        <span className="text-slate-500 truncate max-w-[120px]">{conv.model}</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                          {conv.redactedCount ?? 1} Redacted
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -193,9 +213,9 @@ export function ConversationSidebar() {
           </span>
           <span className="font-mono font-bold text-slate-700">0 Raw Secrets</span>
         </div>
-        <div className="flex items-center gap-1.5 text-emerald-700 text-[10px]">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Real time ZeroLeak Active</span>
+        <div className="flex items-center gap-1.5 text-slate-500 text-[10px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span>ZeroLeak Standby Ready</span>
         </div>
       </div>
     </div>

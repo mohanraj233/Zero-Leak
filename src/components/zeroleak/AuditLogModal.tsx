@@ -42,7 +42,7 @@ export function AuditLogModal() {
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span className="font-semibold text-slate-100">
-                Table: zeroLeak_audit_logs (Partition: Tenant 0x481F)
+                Table: zeroLeak_audit_logs (Partition: Default Workspace)
               </span>
             </div>
             <span className="font-mono text-[11px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
@@ -64,35 +64,47 @@ export function AuditLogModal() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-mono text-slate-700">
-                {activityLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 text-slate-500">{log.id}</td>
-                    <td className="py-2.5 px-3">{log.timestamp}</td>
-                    <td className="py-2.5 px-3 font-sans font-medium text-slate-900">
-                      {log.model}
-                    </td>
-                    <td className="py-2.5 px-3 font-bold text-blue-600">
-                      {log.entitiesFound.length} token(s)
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <StatusBadge type="action" value={log.actionEnforced} />
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-500">{log.latencyMs}ms</td>
-                    <td className="py-2.5 px-3 text-right font-sans font-semibold">
-                      <span
-                        className={
-                          log.gatewayStatus === 'Blocked'
-                            ? 'text-rose-600'
-                            : log.gatewayStatus === 'Sanitized'
-                            ? 'text-blue-600'
-                            : 'text-emerald-600'
-                        }
-                      >
-                        {log.gatewayStatus}
-                      </span>
+                {activityLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-12 text-slate-400 font-sans">
+                      <FileText className="w-7 h-7 mx-auto mb-2 text-slate-300" />
+                      <p className="text-xs font-semibold text-slate-700">No audit records found</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Operational metadata will log here upon query execution in the connected backend.
+                      </p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  activityLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50">
+                      <td className="py-2.5 px-3 text-slate-500">{log.id}</td>
+                      <td className="py-2.5 px-3">{log.timestamp}</td>
+                      <td className="py-2.5 px-3 font-sans font-medium text-slate-900">
+                        {log.model}
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-blue-600">
+                        {log.entitiesFound.length} token(s)
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <StatusBadge type="action" value={log.actionEnforced} />
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-500">{log.latencyMs}ms</td>
+                      <td className="py-2.5 px-3 text-right font-sans font-semibold">
+                        <span
+                          className={
+                            log.gatewayStatus === 'Blocked'
+                              ? 'text-rose-600'
+                              : log.gatewayStatus === 'Sanitized'
+                              ? 'text-blue-600'
+                              : 'text-emerald-600'
+                          }
+                        >
+                          {log.gatewayStatus}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

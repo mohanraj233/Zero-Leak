@@ -11,9 +11,9 @@ import {
   Check,
   GitPullRequest,
   FileCode,
-  FileCheck2,
   Sparkles,
   Lock,
+  Shield,
 } from 'lucide-react';
 
 export function SecureChatPanel() {
@@ -21,6 +21,7 @@ export function SecureChatPanel() {
     activeConversation,
     setInspectModalEntity,
     addToast,
+    createNewChat,
   } = useZeroLeak();
 
   const [reversibleSafeView, setReversibleSafeView] = useState(false);
@@ -28,13 +29,30 @@ export function SecureChatPanel() {
   const [gitPatchApplied, setGitPatchApplied] = useState(false);
   const [payloadConfirmed, setPayloadConfirmed] = useState(false);
 
-  if (!activeConversation) {
+  if (!activeConversation || activeConversation.messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8 text-center text-slate-400">
-        <div>
-          <ShieldAlert className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-          <p className="text-sm font-semibold">No Conversation Selected</p>
-          <p className="text-xs text-slate-400 mt-1">Select or start a new secure chat session.</p>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-white select-none">
+        <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-2xs">
+          <Shield className="w-7 h-7" />
+        </div>
+        <h3 className="text-base font-bold text-slate-900 tracking-tight">
+          Secure AI Gateway Ready
+        </h3>
+        <p className="text-xs text-slate-500 mt-1.5 max-w-md leading-relaxed">
+          Type a prompt or attach a file below. The ZeroLeak engine automatically intercepts, detects,
+          and redacts sensitive tokens before external transmission.
+        </p>
+        <div className="mt-5 flex items-center gap-3">
+          <button
+            onClick={createNewChat}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors"
+          >
+            Start New Session
+          </button>
+        </div>
+        <div className="mt-6 flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+          <Lock className="w-3.5 h-3.5 text-emerald-500" />
+          <span>Fail-Closed Policy Armed • 0 Plaintext Persistence</span>
         </div>
       </div>
     );
@@ -56,7 +74,7 @@ export function SecureChatPanel() {
     addToast({
       type: 'success',
       title: 'Git Patch Staged',
-      message: 'Isolated git patch created for review in workspace branch fix/zeroleak-remediation.',
+      message: 'Isolated patch created for workspace review in fix/zeroleak-remediation.',
     });
   };
 
@@ -64,10 +82,10 @@ export function SecureChatPanel() {
     setPayloadConfirmed(!payloadConfirmed);
     addToast({
       type: 'success',
-      title: payloadConfirmed ? 'Payload Unconfirmed' : 'Safe Payload Confirmed',
+      title: payloadConfirmed ? 'Payload Reset' : 'Safe Payload Confirmed',
       message: payloadConfirmed
-        ? 'Payload verification reset to pending.'
-        : 'ZeroLeak human sign-off approved for sanitized surrogate transmission.',
+        ? 'Payload verification returned to pending.'
+        : 'ZeroLeak sign-off approved for sanitized surrogate transmission.',
     });
   };
 
@@ -79,9 +97,14 @@ export function SecureChatPanel() {
     (m) => m.entitiesDetected || []
   );
 
+  // Collect user attached files from active conversation
+  const sessionAttachments = activeConversation.messages.flatMap(
+    (m) => m.attachments || []
+  );
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-y-auto bg-white p-4 lg:p-6 space-y-4">
-      {/* Top Security Banner (Matching Zero Leak UI.pdf) */}
+      {/* Top Security Banner (Renders only when sensitive entities are intercepted) */}
       {hasRedactions && (
         <div className="rounded-xl border border-rose-300/80 bg-rose-50/60 p-4 shadow-2xs animate-in fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -99,7 +122,7 @@ export function SecureChatPanel() {
                   </span>
                 </div>
                 <p className="text-xs text-rose-900 mt-1 leading-relaxed">
-                  <span className="font-bold">{allDetectedEntities.length} sensitive credentials</span> detected in prompt stream. Sanitized surrogates provided to external provider.
+                  <span className="font-bold">{allDetectedEntities.length} sensitive item(s)</span> detected in prompt stream. Sanitized surrogates provided to external provider.
                 </p>
               </div>
             </div>
@@ -137,17 +160,17 @@ export function SecureChatPanel() {
               <div key={message.id} className="space-y-3">
                 {/* User Header */}
                 <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-[10px]">
-                    JD
+                  <div className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-[10px]">
+                    U
                   </div>
-                  <span className="font-semibold text-slate-800">You (John Doe)</span>
+                  <span className="font-semibold text-slate-800">You (User)</span>
                   <span>•</span>
                   <span>{message.timestamp}</span>
                 </div>
 
                 {/* Prompt Text */}
-                <div className="text-xs leading-relaxed text-slate-800 bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 max-w-3xl">
-                  {message.content.split('\n\n')[0]}
+                <div className="text-xs leading-relaxed text-slate-800 bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 max-w-3xl whitespace-pre-wrap">
+                  {message.content}
                 </div>
 
                 {/* Intercepted Snippet Card */}
@@ -166,37 +189,15 @@ export function SecureChatPanel() {
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-200 font-sans font-medium transition-colors border border-slate-700"
                       >
                         {reversibleSafeView ? <EyeOff className="w-3 h-3 text-amber-400" /> : <Eye className="w-3 h-3 text-emerald-400" />}
-                        <span>{reversibleSafeView ? 'Raw Masked View' : 'Reversible Safe View'}</span>
+                        <span>{reversibleSafeView ? 'Redacted View' : 'Reversible Safe View'}</span>
                       </button>
                     </div>
 
                     {/* Code Lines with Highlights */}
                     <div className="p-4 font-mono text-xs overflow-x-auto space-y-1.5 bg-[#0B111E]">
-                      {reversibleSafeView ? (
-                        <div className="space-y-1 text-slate-300">
-                          <div>
-                            const stripe = require(&apos;stripe&apos;)( <span className="bg-emerald-950 text-emerald-400 px-1 py-0.5 rounded font-bold">&apos;sk_live_••••••••••••3847&apos;</span> ); <span className="text-slate-500">{'// [Restored for Authorized Session]'}</span>
-                          </div>
-                          <div>
-                            const dbUri = <span className="bg-emerald-950 text-emerald-400 px-1 py-0.5 rounded font-bold">&apos;postgresql://admin_usr:••••••••@ep-cool-fog-1928.../prod_db&apos;</span> ; <span className="text-slate-500">{'// [PostgreSQL URI]'}</span>
-                          </div>
-                          <div>
-                            const adminEmail = <span className="bg-emerald-950 text-emerald-400 px-1 py-0.5 rounded font-bold">&apos;security-team@internal-corp.io&apos;</span> ; <span className="text-slate-500">{'// [Corporate PII]'}</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-1 text-slate-300">
-                          <div>
-                            const stripe = require(&apos;stripe&apos;)( <span className="bg-rose-950/80 text-rose-400 border border-rose-800 px-1.5 py-0.5 rounded font-bold">&lt;SECRET_1&gt;</span> ); <span className="text-slate-500">{'// [Redacted: Stripe Live Secret Key]'}</span>
-                          </div>
-                          <div>
-                            const dbUri = <span className="bg-rose-950/80 text-rose-400 border border-rose-800 px-1.5 py-0.5 rounded font-bold">&lt;DATABASE_CREDENTIAL_1&gt;</span> ; <span className="text-slate-500">{'// [Redacted: Neon PostgreSQL URL]'}</span>
-                          </div>
-                          <div>
-                            const adminEmail = <span className="bg-amber-950/80 text-amber-400 border border-amber-800 px-1.5 py-0.5 rounded font-bold">&lt;EMAIL_1&gt;</span> ; <span className="text-slate-500">{'// [Redacted: PII Email]'}</span>
-                          </div>
-                        </div>
-                      )}
+                      <pre className="text-slate-300 whitespace-pre-wrap">
+                        {reversibleSafeView ? message.codeSnippets[0].code : message.codeSnippets[0].sanitizedCode}
+                      </pre>
                     </div>
 
                     {/* Footer bar */}
@@ -204,7 +205,7 @@ export function SecureChatPanel() {
                       <div className="flex items-center gap-1.5">
                         <Lock className="w-3.5 h-3.5 text-blue-400" />
                         <span>
-                          Sanitized by ZeroLeak Gateway • 3 Entities Redacted • Forwarded safely to Gemini 3.8 Flash
+                          Sanitized by ZeroLeak Gateway • {message.entitiesDetected?.length || 0} Entities Redacted
                         </span>
                       </div>
                     </div>
@@ -222,11 +223,11 @@ export function SecureChatPanel() {
                   <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px]">
                     <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                   </div>
-                  <span className="font-bold text-slate-900">{message.model || 'Gemini 3.8 Flash (Medium)'}</span>
+                  <span className="font-bold text-slate-900">{message.model || 'ZeroLeak Gateway'}</span>
                   <span className="text-slate-400">•</span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.2 rounded-full">
-                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                    Safe Response
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.2 rounded-full">
+                    <ShieldCheck className="w-3 h-3 text-blue-600" />
+                    Gateway Intercept
                   </span>
                   <span className="text-slate-400">•</span>
                   <span className="text-slate-500">{message.timestamp}</span>
@@ -270,20 +271,22 @@ export function SecureChatPanel() {
                 )}
 
                 {/* Apply Git Patch Action */}
-                <div className="flex items-center gap-3 pt-1">
-                  <button
-                    onClick={handleApplyGitPatch}
-                    disabled={gitPatchApplied}
-                    className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      gitPatchApplied
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-default'
-                        : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
-                    }`}
-                  >
-                    <GitPullRequest className="w-3.5 h-3.5" />
-                    <span>{gitPatchApplied ? 'Git Patch Staged ✓' : 'Apply Git Patch'}</span>
-                  </button>
-                </div>
+                {message.remediationSnippet && (
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      onClick={handleApplyGitPatch}
+                      disabled={gitPatchApplied}
+                      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        gitPatchApplied
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-default'
+                          : 'bg-slate-900 hover:bg-slate-800 text-white shadow-xs'
+                      }`}
+                    >
+                      <GitPullRequest className="w-3.5 h-3.5" />
+                      <span>{gitPatchApplied ? 'Git Patch Staged ✓' : 'Apply Git Patch'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           }
@@ -307,26 +310,26 @@ export function SecureChatPanel() {
         })}
       </div>
 
-      {/* Payload Attachments preview pills (Matching reference) */}
-      <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono mr-1">
-          Payload Attachments:
-        </span>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono">
-          <FileCode className="w-3.5 h-3.5 text-blue-600" />
-          <span>auth-handler.ts (14.2 KB)</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 font-sans text-[10px] font-bold">
-            2 Redacted
+      {/* Payload Attachments (Only shown when files are attached) */}
+      {sessionAttachments.length > 0 && (
+        <div className="pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider font-mono mr-1">
+            Payload Attachments:
           </span>
+          {sessionAttachments.map((att) => (
+            <div
+              key={att.id}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono"
+            >
+              <FileCode className="w-3.5 h-3.5 text-blue-600" />
+              <span>{att.name} ({(att.sizeBytes / 1024).toFixed(1)} KB)</span>
+              <span className="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 font-sans text-[10px] font-bold">
+                Clean ✓
+              </span>
+            </div>
+          ))}
         </div>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-700 font-mono">
-          <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
-          <span>api-dump.json (4.8 KB)</span>
-          <span className="px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700 font-sans text-[10px] font-bold">
-            Clean ✓
-          </span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

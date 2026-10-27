@@ -203,7 +203,7 @@ export function PolicyRuleTable() {
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              Keywords & Allowlist (14)
+              Keywords & Allowlist (0)
             </button>
             <button
               onClick={() => setActiveSubtab('regex')}
@@ -213,7 +213,7 @@ export function PolicyRuleTable() {
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
-              Custom Regex Overrides (3)
+              Custom Regex Overrides (0)
             </button>
           </div>
 

@@ -18,6 +18,7 @@ import {
   INITIAL_ACTIVITY_LOGS,
   inspectAndRedactText,
 } from '@/services/zeroleak-mock';
+import { zeroleakApi } from '@/services/zeroleak-api';
 
 interface ToastMessage {
   id: string;
@@ -67,9 +68,9 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
   const [metrics, setMetrics] = useState<DashboardMetrics>(INITIAL_METRICS);
   const [categories, setCategories] = useState<DetectionCategory[]>(INITIAL_CATEGORIES);
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
-  const [activeConversationId, setActiveConversationId] = useState<string>('conv-1');
+  const [activeConversationId, setActiveConversationId] = useState<string>('');
   const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>(INITIAL_ACTIVITY_LOGS);
-  const [selectedModel, setSelectedModel] = useState<string>('Gemini 3.8 Flash (Medium)');
+  const [selectedModel, setSelectedModel] = useState<string>('Gemini 3.8 Flash (Server Proxy)');
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [inspectModalEntity, setInspectModalEntity] = useState<SensitiveEntity[] | null>(null);
   const [regexModalOpen, setRegexModalOpen] = useState<boolean>(false);
@@ -107,7 +108,7 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
     addToast({
       type: 'info',
       title: 'New Session Initialized',
-      message: 'ZeroLeak fail-closed protection armed for new prompt stream.',
+      message: 'ZeroLeak fail-closed protection armed for new prompt session.',
     });
   };
 
@@ -119,12 +120,29 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
     addToast({
       type: 'info',
       title: 'Chat Cleared',
-      message: 'Ephemeral in-memory messages wiped safely from current session.',
+      message: 'Ephemeral in-memory messages cleared from current session.',
     });
   };
 
   const sendMessage = async (text: string, attachments?: File[]) => {
     if (!text.trim() && (!attachments || attachments.length === 0)) return;
+
+    let targetConvId = activeConversationId;
+    if (!targetConvId || !conversations.some((c) => c.id === targetConvId)) {
+      convIdRef.current += 1;
+      targetConvId = `conv-${convIdRef.current}`;
+      const newConv: Conversation = {
+        id: targetConvId,
+        title: text.slice(0, 32) + (text.length > 32 ? '...' : ''),
+        timestamp: 'Just now',
+        timeGroup: 'today',
+        model: selectedModel,
+        status: 'clean',
+        messages: [],
+      };
+      setConversations((prev) => [newConv, ...prev]);
+      setActiveConversationId(targetConvId);
+    }
 
     const inspection = inspectAndRedactText(text);
 
@@ -164,7 +182,7 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
     // Update conversation with user message immediately
     setConversations((prev) =>
       prev.map((c) => {
-        if (c.id === activeConversationId) {
+        if (c.id === targetConvId) {
           const newStatus = inspection.blocked ? 'blocked' : inspection.hasSensitiveData ? 'redacted' : c.status;
           return {
             ...c,
@@ -185,6 +203,7 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
       sensitiveItemsDetected: prev.sensitiveItemsDetected + inspection.entities.length,
       itemsRedacted: prev.itemsRedacted + (inspection.blocked ? 0 : inspection.entities.length),
       requestsBlocked: prev.requestsBlocked + (inspection.blocked ? 1 : 0),
+      routingGatewayStatus: '100% Intercept Active',
     }));
 
     actIdRef.current += 1;
@@ -209,7 +228,6 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
         title: 'Request Blocked',
         message: inspection.blockedReason || 'High-risk secret detected. Gateway prevented external transmission.',
       });
-      // Append system blocked response
       setTimeout(() => {
         msgIdRef.current += 1;
         const sysMsg: ChatMessage = {
@@ -219,12 +237,12 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
           status: 'blocked',
           content: `REQUEST BLOCKED BY ZEROLEAK GATEWAY (Fail-Closed Policy)\n\nZeroLeak Interceptor flagged sensitive credentials that cannot safely egress: ${inspection.entities
             .map((e) => e.type)
-            .join(', ')}. No external AI network call was made.`,
+            .join(', ')}. Egress aborted.`,
         };
         setConversations((prev) =>
-          prev.map((c) => (c.id === activeConversationId ? { ...c, messages: [...c.messages, sysMsg] } : c))
+          prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, sysMsg] } : c))
         );
-      }, 350);
+      }, 300);
       return;
     }
 
@@ -232,12 +250,45 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
       addToast({
         type: 'warning',
         title: `${inspection.entities.length} Sensitive Entities Redacted`,
-        message: 'Placeholders substituted. Sanitized payload dispatched safely to model.',
+        message: 'Placeholders substituted. Sanitized payload ready for gateway.',
       });
     }
 
-    // Simulated assistant response
-    setTimeout(() => {
+    // Forward to API or return transparent unintegrated notice
+    const hasConfiguredBackend = Boolean(process.env.NEXT_PUBLIC_ZEROLEAK_API_URL?.trim());
+
+    if (!hasConfiguredBackend) {
+      setTimeout(() => {
+        msgIdRef.current += 1;
+        const noticeMsg: ChatMessage = {
+          id: `notice-${msgIdRef.current}`,
+          sender: 'assistant',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          model: selectedModel,
+          status: 'review_required',
+          content: `[ZeroLeak Gateway: Standby Mode]\n\nYour prompt was inspected by the local ZeroLeak DLP engine.\n${
+            inspection.hasSensitiveData
+              ? `Detected and replaced ${inspection.entities.length} sensitive item(s) with placeholder keys.`
+              : '0 sensitive credentials detected in prompt stream.'
+          }\n\nNote: The backend AI Proxy Gateway is not currently connected (NEXT_PUBLIC_ZEROLEAK_API_URL is unset). In accordance with Fail-Closed security, raw prompts are not sent directly from browser to external AI providers.`,
+          securityNote: 'Zero-exposure guarantee: No credentials were sent over the network.',
+        };
+
+        setConversations((prev) =>
+          prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, noticeMsg] } : c))
+        );
+      }, 400);
+      return;
+    }
+
+    // When backend is connected, delegate to backend service
+    try {
+      const response = await zeroleakApi.sendAiChat({
+        model: selectedModel,
+        sanitizedPrompt: inspection.sanitizedText,
+        contextId: targetConvId,
+      });
+
       msgIdRef.current += 1;
       const assistantMsg: ChatMessage = {
         id: `asst-${msgIdRef.current}`,
@@ -245,27 +296,28 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         model: selectedModel,
         status: 'safe_response',
-        content: `I analyzed your sanitized prompt via ${selectedModel}.\n\nYour logic structure is clear. Any hardcoded access tokens or configuration credentials should be refactored into protected environment variables or secrets manager references to prevent leakage in version control.`,
-        remediationSnippet: {
-          title: 'Remediation: Hardened Environment Reference Pattern',
-          language: 'typescript',
-          code: `// Recommended safe pattern
-const apiKey = process.env.SERVICE_API_KEY;
-if (!apiKey) {
-  throw new Error('Missing required secret in runtime environment');
-}`,
-        },
-        securityNote: inspection.hasSensitiveData
-          ? `ZeroLeak Shield sanitized ${inspection.entities.length} entities before transmission. Reversible in-memory mapping guarantees zero plaintext persistence on external servers.`
-          : undefined,
+        content: response.content,
+        remediationSnippet: response.remediationSnippet,
+        securityNote: response.securityNote,
       };
 
       setConversations((prev) =>
-        prev.map((c) =>
-          c.id === activeConversationId ? { ...c, messages: [...c.messages, assistantMsg] } : c
-        )
+        prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, assistantMsg] } : c))
       );
-    }, 600);
+    } catch {
+      msgIdRef.current += 1;
+      const errorMsg: ChatMessage = {
+        id: `err-${msgIdRef.current}`,
+        sender: 'assistant',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        model: selectedModel,
+        status: 'review_required',
+        content: `Error connecting to ZeroLeak backend gateway. Request aborted per fail-closed policy.`,
+      };
+      setConversations((prev) =>
+        prev.map((c) => (c.id === targetConvId ? { ...c, messages: [...c.messages, errorMsg] } : c))
+      );
+    }
   };
 
   const updateRuleAction = (categoryId: string, ruleId: string, action: PolicyRule['actionOverride']) => {
@@ -330,7 +382,7 @@ if (!apiKey) {
     addToast({
       type: 'success',
       title: 'Policy Configuration Saved',
-      message: 'ZeroLeak local ruleset compiled and armed. Fail-closed engine updated.',
+      message: 'ZeroLeak local ruleset compiled and armed. Fail-closed engine ready.',
     });
   };
 
@@ -353,17 +405,19 @@ if (!apiKey) {
   };
 
   const runPrivacyAudit = () => {
-    setMetrics((prev) => ({
-      ...prev,
-      totalQueries: prev.totalQueries + 14,
-      sensitiveItemsDetected: prev.sensitiveItemsDetected + 5,
-      itemsRedacted: prev.itemsRedacted + 5,
-    }));
-    addToast({
-      type: 'success',
-      title: 'Privacy Audit Completed',
-      message: '14 outbound requests verified across 8 monitored AI endpoints. 0 plaintext leaks detected.',
-    });
+    if (metrics.totalQueries === 0) {
+      addToast({
+        type: 'info',
+        title: 'Privacy Audit Completed',
+        message: 'No active AI egress queries found in current session. Perimeter clean (0 leaks detected).',
+      });
+    } else {
+      addToast({
+        type: 'info',
+        title: 'Privacy Audit Completed',
+        message: `${metrics.totalQueries} outbound request(s) inspected. ${metrics.itemsRedacted} token(s) sanitized. 0 plaintext leaks detected.`,
+      });
+    }
   };
 
   return (

@@ -11,11 +11,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { TIME_RANGE_DATA } from '@/services/zeroleak-mock';
-import { Zap } from 'lucide-react';
+import { useZeroLeak } from '@/context/ZeroLeakContext';
+import { Zap, Activity } from 'lucide-react';
 
 export function PrivacyActivityChart() {
+  const { metrics } = useZeroLeak();
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const data = TIME_RANGE_DATA[timeRange];
+  const hasActivity = metrics.totalQueries > 0;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs flex flex-col justify-between">
@@ -49,7 +52,16 @@ export function PrivacyActivityChart() {
       </div>
 
       {/* Chart Visualization */}
-      <div className="h-64 w-full">
+      <div className="relative h-64 w-full">
+        {!hasActivity && (
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[1px] text-center p-4">
+            <Activity className="w-8 h-8 text-slate-300 mb-2" />
+            <p className="text-xs font-semibold text-slate-700">No inspection activity recorded yet</p>
+            <p className="text-[11px] text-slate-500 mt-0.5 max-w-sm">
+              Prompts and code passed through the Secure AI Gateway will plot telemetry here in real-time.
+            </p>
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
@@ -116,17 +128,21 @@ export function PrivacyActivityChart() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-            <span className="text-slate-600 font-medium">Inspected AI Queries (1,284)</span>
+            <span className="text-slate-600 font-medium">
+              Inspected AI Queries ({metrics.totalQueries.toLocaleString()})
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <span className="text-slate-600 font-medium">Sanitized Tokens (318)</span>
+            <span className="text-slate-600 font-medium">
+              Sanitized Tokens ({metrics.itemsRedacted.toLocaleString()})
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono">
           <Zap className="w-3 h-3 text-amber-500" />
-          <span>Latency overhead: &lt;14ms avg</span>
+          <span>Latency overhead: {hasActivity ? '<14ms avg' : '0ms (standby)'}</span>
         </div>
       </div>
     </div>

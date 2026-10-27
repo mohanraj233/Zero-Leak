@@ -104,7 +104,7 @@ export function ChatComposer() {
   const loadTestPrompt = (type: 'stripe' | 'aws' | 'pii' | 'clean') => {
     if (type === 'stripe') {
       setText(
-        `Help me test my checkout webhook. Here is my configuration:\nconst stripeSecret = "sk_live_demo_920194882019284710293847";\nconst dbUri = "postgresql://user:p@ss123@neon.tech/prod";`
+        `Help me test my checkout webhook. Here is my configuration:\nconst stripeSecret = "sk_test_demo_sample_token";\nconst dbUri = "postgresql://user:password@localhost:5432/testdb";`
       );
     } else if (type === 'aws') {
       setText(
@@ -112,7 +112,7 @@ export function ChatComposer() {
       );
     } else if (type === 'pii') {
       setText(
-        `Customer complaint ticket:\nName: Sarah Jenkins\nSSN: 123-45-6789\nEmail: s.jenkins@example.com\nGenerate a polite response email.`
+        `Customer support inquiry:\nName: Alex Taylor\nEmail: alex.taylor@example.com\nGenerate a polite response acknowledging receipt.`
       );
     } else if (type === 'clean') {
       setText(

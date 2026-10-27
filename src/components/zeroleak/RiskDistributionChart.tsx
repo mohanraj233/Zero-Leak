@@ -3,9 +3,17 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { RISK_DISTRIBUTION_DATA } from '@/services/zeroleak-mock';
+import { useZeroLeak } from '@/context/ZeroLeakContext';
 import { ShieldCheck } from 'lucide-react';
 
 export function RiskDistributionChart() {
+  const { metrics } = useZeroLeak();
+  const hasQueries = metrics.totalQueries > 0;
+  // If no queries, provide a placeholder single segment so recharts doesn't fail
+  const chartData = hasQueries
+    ? RISK_DISTRIBUTION_DATA
+    : [{ name: 'Standby', value: 100, count: 0, color: '#E2E8F0' }];
+
   return (
     <div className="bg-white rounded-xl border border-slate-200/80 p-5 shadow-2xs flex flex-col justify-between">
       {/* Header */}
@@ -15,7 +23,7 @@ export function RiskDistributionChart() {
           <p className="text-xs text-slate-500">All outbound model requests</p>
         </div>
         <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
-          Pre-Filter
+          {hasQueries ? 'Pre-Filter' : 'Standby'}
         </span>
       </div>
 
@@ -24,35 +32,44 @@ export function RiskDistributionChart() {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={RISK_DISTRIBUTION_DATA}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={55}
               outerRadius={75}
-              paddingAngle={3}
+              paddingAngle={hasQueries ? 3 : 0}
               dataKey="value"
             >
-              {RISK_DISTRIBUTION_DATA.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
               ))}
             </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: '#0F172A',
-                borderColor: '#334155',
-                borderRadius: '8px',
-                color: '#F8FAFC',
-                fontSize: '12px',
-              }}
-              formatter={(value, name) => [`${value}% (${RISK_DISTRIBUTION_DATA.find(d => d.name === name)?.count} queries)`, name]}
-            />
+            {hasQueries && (
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#0F172A',
+                  borderColor: '#334155',
+                  borderRadius: '8px',
+                  color: '#F8FAFC',
+                  fontSize: '12px',
+                }}
+                formatter={(value, name) => [
+                  `${value}% (${RISK_DISTRIBUTION_DATA.find((d) => d.name === name)?.count} queries)`,
+                  name,
+                ]}
+              />
+            )}
           </PieChart>
         </ResponsiveContainer>
 
         {/* Center Text inside Donut */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-          <span className="text-xl font-extrabold text-slate-900 leading-none">1,284</span>
-          <span className="text-[10px] text-slate-500 font-medium mt-0.5">Total Queries</span>
+          <span className="text-xl font-extrabold text-slate-900 leading-none">
+            {metrics.totalQueries.toLocaleString()}
+          </span>
+          <span className="text-[10px] text-slate-500 font-medium mt-0.5">
+            {hasQueries ? 'Total Queries' : 'Queries Inspected'}
+          </span>
         </div>
       </div>
 

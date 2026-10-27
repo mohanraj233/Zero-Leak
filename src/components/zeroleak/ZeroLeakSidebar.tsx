@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Building2,
   Lock,
+  User,
 } from 'lucide-react';
 
 export function ZeroLeakSidebar() {
@@ -65,8 +66,8 @@ export function ZeroLeakSidebar() {
             <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">
               AI SECURITY / ZEROLEAK
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-1.5 py-0.5 rounded-full font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-800/60 border border-slate-700/50 px-1.5 py-0.5 rounded-full font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               v2.4
             </span>
           </div>
@@ -103,19 +104,19 @@ export function ZeroLeakSidebar() {
         <div className="mx-1 p-3 rounded-xl bg-slate-900/90 border border-slate-800/90 shadow-inner">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-200 mb-1">
             <span className="flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
+              <Lock className="w-3.5 h-3.5 text-blue-400" />
               ZeroLeak Engine
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono">
-              Active
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+              Standby
             </span>
           </div>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Fail-Closed DLP Guard intercepting external LLM prompts.
+            Fail-Closed DLP Guard active. Awaiting outbound AI requests.
           </p>
           <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-400">
-            <span>In-Memory RAM TTL</span>
-            <span className="text-slate-300 font-mono">60s / Expired</span>
+            <span>Perimeter Cache</span>
+            <span className="text-slate-300 font-mono">0 Plaintext Stored</span>
           </div>
         </div>
       </div>
@@ -127,7 +128,7 @@ export function ZeroLeakSidebar() {
           <div className="flex items-center gap-2 overflow-hidden">
             <Building2 className="w-4 h-4 text-blue-400 shrink-0" />
             <span className="truncate font-medium text-slate-200 text-[11px]">
-              E-Commerce App (Production)
+              Default Workspace
             </span>
           </div>
           <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -136,14 +137,14 @@ export function ZeroLeakSidebar() {
         {/* User Card */}
         <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-slate-800/50 transition-colors cursor-pointer">
           <div className="relative">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs ring-1 ring-slate-700">
-              JD
+            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs">
+              <User className="w-4 h-4" />
             </div>
             <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#0B111E]" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-slate-200 truncate">John Doe</div>
-            <div className="text-[10px] text-slate-400 truncate">Vibe Coder</div>
+            <div className="text-xs font-medium text-slate-200 truncate">Workspace User</div>
+            <div className="text-[10px] text-slate-400 truncate">Local Developer</div>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ export function RegexSandboxModal() {
   const [pattern, setPattern] = useState('(?:sk|rk)_(?:live|test)_[0-9a-zA-Z_]{16,}');
   const [flags, setFlags] = useState('g');
   const [sampleText, setSampleText] = useState(
-    `// Test sample configuration\nconst stripeKey = "sk_live_demo_920194882019284710293847";\nconst testKey = "sk_test_demo_51Mz00192847102938471029";\nconst cleanVar = "hello_world";`
+    `// Enter code or text here to test regex pattern matching in local sandbox\n// Example: const apiKey = "sample_test_token_12345";\nconst cleanMessage = "Hello ZeroLeak";`
   );
   const [testResult, setTestResult] = useState<{
     tested: boolean;
@@ -63,16 +63,16 @@ export function RegexSandboxModal() {
   const handleLoadSample = (type: 'stripe' | 'email' | 'aws' | 'db') => {
     if (type === 'stripe') {
       setPattern('(?:sk|rk)_(?:live|test)_[0-9a-zA-Z_]{16,}');
-      setSampleText('const stripe = require("stripe")("sk_live_demo_920194882019284710293847");');
+      setSampleText('const stripe = require("stripe")("sk_test_demo_placeholder_token_for_testing");');
     } else if (type === 'email') {
       setPattern('[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+');
-      setSampleText('Send logs to admin@enterprise-client.com or sec-ops@cloud-corp.io for verification.');
+      setSampleText('Send logs to admin@example.com or sec-ops@example.org for verification.');
     } else if (type === 'aws') {
       setPattern('(?:AKIA|ASIA)[0-9A-Z]{16}');
       setSampleText('export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"');
     } else if (type === 'db') {
       setPattern('(?:postgresql|postgres|mysql|mongodb(?:\\+srv)?):\\/\\/[^\\s"\'<>]+');
-      setSampleText('DATABASE_URL="postgresql://db_user:s3cr3tP@ss@db.neon.tech/main?sslmode=require"');
+      setSampleText('DATABASE_URL="postgresql://db_user:password@localhost:5432/main?sslmode=require"');
     }
     setTestResult(null);
   };

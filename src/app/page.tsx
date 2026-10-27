@@ -102,9 +102,12 @@ export default function ZeroLeakOverviewPage() {
             title="PROTECTED REQUESTS"
             value={metrics.totalQueries}
             unit="queries"
-            badge={{ text: `+${metrics.queriesDeltaPercent}%`, variant: 'success' }}
+            badge={{
+              text: `${metrics.queriesDeltaPercent}% Delta`,
+              variant: metrics.queriesDeltaPercent > 0 ? 'success' : 'neutral',
+            }}
             subtitleTop="Routing Gateway"
-            subtitleBottom="100% Secure Active"
+            subtitleBottom={metrics.routingGatewayStatus || 'Standby (Awaiting Traffic)'}
             icon={ShieldCheck}
             iconColor="text-blue-600"
             iconBg="bg-blue-50"
@@ -115,9 +118,14 @@ export default function ZeroLeakOverviewPage() {
             title="SENSITIVE ITEMS DETECTED"
             value={metrics.sensitiveItemsDetected}
             unit="tokens"
-            badge={{ text: 'Tokens Found', variant: 'warning' }}
+            badge={{
+              text: metrics.tokensBreakdownLabel,
+              variant: metrics.sensitiveItemsDetected > 0 ? 'warning' : 'neutral',
+            }}
             subtitleTop="Detections by Category"
-            subtitleBottom="API / PII / DB"
+            subtitleBottom={
+              metrics.sensitiveItemsDetected > 0 ? 'API / PII / DB' : 'None detected'
+            }
             icon={AlertTriangle}
             iconColor="text-amber-600"
             iconBg="bg-amber-50"
@@ -128,7 +136,10 @@ export default function ZeroLeakOverviewPage() {
             title="ITEMS REDACTED"
             value={`${metrics.itemsRedacted} Reversible`}
             unit="<TOKEN>"
-            badge={{ text: `${metrics.redactedPercent}% Masked`, variant: 'info' }}
+            badge={{
+              text: `${metrics.redactedPercent}% Masked`,
+              variant: metrics.itemsRedacted > 0 ? 'info' : 'neutral',
+            }}
             subtitleTop={`Sanitization Ratio: ${metrics.itemsRedacted} of ${metrics.sensitiveItemsDetected}`}
             subtitleBottom="Reversible RAM Mapping"
             icon={Scissors}
@@ -137,7 +148,7 @@ export default function ZeroLeakOverviewPage() {
             secondaryMetric={{
               title: 'Requests Blocked',
               value: `${metrics.requestsBlocked} drops`,
-              badgeText: 'Critical Intercept',
+              badgeText: metrics.requestsBlocked > 0 ? 'Critical Intercept' : '0 Drops',
             }}
           />
 
@@ -145,8 +156,11 @@ export default function ZeroLeakOverviewPage() {
           <MetricCard
             title="AVERAGE RISK SCORE"
             value={`${metrics.averageRiskScore}%`}
-            unit="Moderate"
-            badge={{ text: '38 / 100', variant: 'danger' }}
+            unit={metrics.averageRiskScore === 0 ? 'Standby' : 'Moderate'}
+            badge={{
+              text: `${metrics.averageRiskScore} / 100`,
+              variant: metrics.averageRiskScore > 50 ? 'danger' : 'neutral',
+            }}
             subtitleTop={`Pre-Sanitization: ${metrics.averageRiskScore}%`}
             subtitleBottom={`Post-Mask: ${metrics.postMaskRiskScore}%`}
             icon={Activity}

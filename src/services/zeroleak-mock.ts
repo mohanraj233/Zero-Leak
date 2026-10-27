@@ -11,359 +11,100 @@ import {
 } from '@/types/zeroleak';
 
 export const INITIAL_METRICS: DashboardMetrics = {
-  totalQueries: 1284,
-  queriesDeltaPercent: 18,
-  sensitiveItemsDetected: 342,
-  tokensBreakdownLabel: 'API / PII / DB',
-  itemsRedacted: 318,
-  redactedPercent: 93,
-  requestsBlocked: 12,
-  averageRiskScore: 38,
+  totalQueries: 0,
+  queriesDeltaPercent: 0,
+  sensitiveItemsDetected: 0,
+  tokensBreakdownLabel: '0 Detected',
+  itemsRedacted: 0,
+  redactedPercent: 0,
+  requestsBlocked: 0,
+  averageRiskScore: 0,
   postMaskRiskScore: 0,
-  routingGatewayStatus: '100% Secure Active',
-  monitoredGatewaysCount: 8,
-  totalGatewaysCount: 12,
+  routingGatewayStatus: 'Standby (Awaiting Traffic)',
+  monitoredGatewaysCount: 0,
+  totalGatewaysCount: 0,
 };
 
 export const TIME_RANGE_DATA = {
   '24h': [
-    { time: '00:00', inspectedQueries: 42, sanitizedTokens: 11 },
-    { time: '04:00', inspectedQueries: 18, sanitizedTokens: 4 },
-    { time: '08:00', inspectedQueries: 112, sanitizedTokens: 28 },
-    { time: '12:00', inspectedQueries: 246, sanitizedTokens: 64 },
-    { time: '16:00', inspectedQueries: 380, sanitizedTokens: 92 },
-    { time: '20:00', inspectedQueries: 298, sanitizedTokens: 71 },
-    { time: 'Current', inspectedQueries: 188, sanitizedTokens: 48 },
+    { time: '00:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: '04:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: '08:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: '12:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: '16:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: '20:00', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Current', inspectedQueries: 0, sanitizedTokens: 0 },
   ],
   '7d': [
-    { time: 'Mon', inspectedQueries: 164, sanitizedTokens: 38 },
-    { time: 'Tue', inspectedQueries: 210, sanitizedTokens: 52 },
-    { time: 'Wed', inspectedQueries: 245, sanitizedTokens: 66 },
-    { time: 'Thu', inspectedQueries: 289, sanitizedTokens: 74 },
-    { time: 'Fri', inspectedQueries: 212, sanitizedTokens: 53 },
-    { time: 'Sat', inspectedQueries: 84, sanitizedTokens: 18 },
-    { time: 'Sun', inspectedQueries: 80, sanitizedTokens: 17 },
+    { time: 'Mon', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Tue', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Wed', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Thu', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Fri', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Sat', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Sun', inspectedQueries: 0, sanitizedTokens: 0 },
   ],
   '30d': [
-    { time: 'Week 1', inspectedQueries: 1120, sanitizedTokens: 290 },
-    { time: 'Week 2', inspectedQueries: 1340, sanitizedTokens: 340 },
-    { time: 'Week 3', inspectedQueries: 1284, sanitizedTokens: 318 },
-    { time: 'Week 4', inspectedQueries: 1450, sanitizedTokens: 362 },
+    { time: 'Week 1', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Week 2', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Week 3', inspectedQueries: 0, sanitizedTokens: 0 },
+    { time: 'Week 4', inspectedQueries: 0, sanitizedTokens: 0 },
   ],
 };
 
 export const RISK_DISTRIBUTION_DATA = [
-  { name: 'Low Risk', value: 62, count: 796, color: '#10B981' },
-  { name: 'Medium', value: 22, count: 282, color: '#F59E0B' },
-  { name: 'High', value: 12, count: 154, color: '#F97316' },
-  { name: 'Critical', value: 4, count: 52, color: '#EF4444' },
+  { name: 'Low Risk', value: 0, count: 0, color: '#10B981' },
+  { name: 'Medium', value: 0, count: 0, color: '#F59E0B' },
+  { name: 'High', value: 0, count: 0, color: '#F97316' },
+  { name: 'Critical', value: 0, count: 0, color: '#EF4444' },
 ];
 
 export const CATEGORY_BREAKDOWN_DATA = [
   {
     id: 'api_keys',
     name: 'API Keys & Access Tokens',
-    count: 142,
-    percent: 41.5,
+    count: 0,
+    percent: 0,
     severity: 'critical' as RiskLevel,
     color: 'bg-rose-500',
   },
   {
     id: 'db_credentials',
     name: 'Database Connection Strings',
-    count: 78,
-    percent: 22.8,
+    count: 0,
+    percent: 0,
     severity: 'critical' as RiskLevel,
     color: 'bg-rose-500',
   },
   {
     id: 'pii',
     name: 'PII (Emails, Phone Numbers, SSNs)',
-    count: 64,
-    percent: 18.7,
+    count: 0,
+    percent: 0,
     severity: 'medium' as RiskLevel,
     color: 'bg-amber-500',
   },
   {
     id: 'ssh_keys',
     name: 'Private RSA / SSH Keys & Certificates',
-    count: 38,
-    percent: 11.1,
+    count: 0,
+    percent: 0,
     severity: 'critical' as RiskLevel,
     color: 'bg-rose-500',
   },
   {
     id: 'jwt_tokens',
     name: 'JWT & Session Bearer Tokens',
-    count: 20,
-    percent: 5.9,
+    count: 0,
+    percent: 0,
     severity: 'high' as RiskLevel,
     color: 'bg-orange-500',
   },
 ];
 
-export const INITIAL_ACTIVITY_LOGS: ActivityLogItem[] = [
-  {
-    id: 'act-001',
-    timestamp: '11:42:18 AM',
-    queryExcerpt: 'const stripe = require("stripe")("sk_live_..."); dbUri="postgres://..."',
-    detector: 'Custom Regex + Presidio',
-    entitiesFound: ['Stripe Secret Key', 'PostgreSQL URI', 'Admin Email'],
-    riskScore: 84,
-    riskLevel: 'critical',
-    actionEnforced: 'mask',
-    gatewayStatus: 'Sanitized',
-    model: 'Gemini 3.8 Flash',
-    latencyMs: 12,
-  },
-  {
-    id: 'act-002',
-    timestamp: '11:15:02 AM',
-    queryExcerpt: 'Supabase RLS Policy Fix with AWS Root Secret AKIAIOSFODNN7EXAMPLE...',
-    detector: 'Gitleaks CLI',
-    entitiesFound: ['AWS Root Credential'],
-    riskScore: 98,
-    riskLevel: 'critical',
-    actionEnforced: 'block',
-    gatewayStatus: 'Blocked',
-    model: 'Claude 3.5 Sonnet',
-    latencyMs: 8,
-  },
-  {
-    id: 'act-003',
-    timestamp: '10:50:41 AM',
-    queryExcerpt: 'Can you write a responsive Next.js Tailwind card component for pricing?',
-    detector: 'ZeroLeak FastScan',
-    entitiesFound: [],
-    riskScore: 0,
-    riskLevel: 'low',
-    actionEnforced: 'allow',
-    gatewayStatus: 'Passed',
-    model: 'Gemini 3.8 Flash',
-    latencyMs: 4,
-  },
-  {
-    id: 'act-004',
-    timestamp: 'Yesterday 16:30',
-    queryExcerpt: 'AWS S3 Presigned URL Handler with session token eyJhbGciOi...',
-    detector: 'Custom Regex',
-    entitiesFound: ['Session Bearer Token', 'S3 Bucket ID'],
-    riskScore: 68,
-    riskLevel: 'high',
-    actionEnforced: 'mask',
-    gatewayStatus: 'Sanitized',
-    model: 'GPT-OSS 120B',
-    latencyMs: 14,
-  },
-  {
-    id: 'act-005',
-    timestamp: '2d ago 09:12',
-    queryExcerpt: 'Customer Data Export Script with 4 customer SSNs and email addresses...',
-    detector: 'Presidio Analyzer',
-    entitiesFound: ['US SSN (x2)', 'Customer Email (x2)'],
-    riskScore: 72,
-    riskLevel: 'high',
-    actionEnforced: 'mask',
-    gatewayStatus: 'Sanitized',
-    model: 'Claude Opus 4.6',
-    latencyMs: 16,
-  },
-];
+export const INITIAL_ACTIVITY_LOGS: ActivityLogItem[] = [];
 
-export const INITIAL_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'conv-1',
-    title: 'Node.js Auth & Stripe Debugging',
-    timestamp: '11:42 AM',
-    timeGroup: 'today',
-    model: 'Gemini 3.8 Flash',
-    status: 'redacted',
-    redactedCount: 3,
-    messages: [
-      {
-        id: 'msg-1',
-        sender: 'user',
-        timestamp: '11:42 AM',
-        content: `I am getting an authentication error in my Node.js application. Here is a configuration snippet containing an API key and database credentials. Help me find the problem.
-
-const stripe = require('stripe')('sk_live_demo_920194882019284710293847');
-const dbUri = 'postgresql://admin_usr:SuperP@ssw0rd2024@ep-cool-fog-1928.us-east-2.aws.neon.tech/prod_db?sslmode=require';
-const adminEmail = 'security-team@internal-corp.io';`,
-        sanitizedContent: `I am getting an authentication error in my Node.js application. Here is a configuration snippet containing an API key and database credentials. Help me find the problem.
-
-const stripe = require('stripe')( '<SECRET_1>' ); // [Redacted: Stripe Live Secret Key]
-const dbUri = '<DATABASE_CREDENTIAL_1>' ; // [Redacted: Neon PostgreSQL URL]
-const adminEmail = '<EMAIL_1>' ; // [Redacted: PII Email]`,
-        status: 'redacted',
-        entitiesDetected: [
-          {
-            id: 'ent-1',
-            type: 'Stripe Live Secret Key',
-            category: 'secrets',
-            placeholder: '<SECRET_1>',
-            originalMasked: 'sk_live_••••••••••••••••••••3847',
-            start: 172,
-            end: 213,
-            severity: 'critical',
-            detector: 'Custom Regex + Gitleaks',
-            action: 'mask',
-            confidence: 0.99,
-          },
-          {
-            id: 'ent-2',
-            type: 'Neon PostgreSQL Connection URL',
-            category: 'secrets',
-            placeholder: '<DATABASE_CREDENTIAL_1>',
-            originalMasked: 'postgresql://admin_usr:••••••••@ep-cool-fog-1928.../prod_db',
-            start: 228,
-            end: 334,
-            severity: 'critical',
-            detector: 'Database URI Pattern',
-            action: 'mask',
-            confidence: 0.98,
-          },
-          {
-            id: 'ent-3',
-            type: 'Internal Corporate Email (PII)',
-            category: 'pii',
-            placeholder: '<EMAIL_1>',
-            originalMasked: 'sec•••••••••@internal-corp.io',
-            start: 353,
-            end: 383,
-            severity: 'medium',
-            detector: 'Microsoft Presidio Analyzer',
-            action: 'mask',
-            confidence: 0.95,
-          },
-        ],
-        codeSnippets: [
-          {
-            filename: 'config/stripe.ts [Intercepted by Gateway]',
-            language: 'typescript',
-            entitiesCount: 3,
-            code: `const stripe = require('stripe')('sk_live_demo_920194882019284710293847');
-const dbUri = 'postgresql://admin_usr:SuperP@ssw0rd2024@ep-cool-fog-1928.us-east-2.aws.neon.tech/prod_db?sslmode=require';
-const adminEmail = 'security-team@internal-corp.io';`,
-            sanitizedCode: `const stripe = require('stripe')( '<SECRET_1>' ); // [Redacted: Stripe Live Secret Key]
-const dbUri = '<DATABASE_CREDENTIAL_1>' ; // [Redacted: Neon PostgreSQL URL]
-const adminEmail = '<EMAIL_1>' ; // [Redacted: PII Email]`,
-          },
-        ],
-        attachments: [
-          {
-            id: 'att-1',
-            name: 'auth-handler.ts',
-            sizeBytes: 14200,
-            type: 'text/typescript',
-            status: 'redacted',
-            redactedCount: 2,
-          },
-          {
-            id: 'att-2',
-            name: 'api-dump.json',
-            sizeBytes: 4800,
-            type: 'application/json',
-            status: 'clean',
-          },
-        ],
-      },
-      {
-        id: 'msg-2',
-        sender: 'assistant',
-        timestamp: '11:42 AM',
-        model: 'Gemini 3.8 Flash (Medium)',
-        status: 'safe_response',
-        content: `Looking at your configuration, your authentication error is typically caused by unescaped special characters in the connection string or passing an expired restricted key.
-
-Here is the recommended safe implementation using environment variables rather than hardcoded credentials:`,
-        remediationSnippet: {
-          title: 'Remediation: Safe Env Var Pattern',
-          language: 'typescript',
-          code: `// Recommended VibeProofLens Remediation
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: true }
-});`,
-        },
-        securityNote:
-          'VibeProofLens detected hardcoded credentials in your prompt and intercepted them. Placeholders <SECRET_1> and <DATABASE_CREDENTIAL_1> will be safely restored locally upon deployment.',
-      },
-    ],
-  },
-  {
-    id: 'conv-2',
-    title: 'Supabase RLS Policy Fix',
-    timestamp: '29m ago',
-    timeGroup: 'today',
-    model: 'Claude 3.5 Sonnet',
-    status: 'blocked',
-    messages: [
-      {
-        id: 'msg-201',
-        sender: 'user',
-        timestamp: '11:15 AM',
-        content:
-          'Please help me debug my Supabase policy with AWS root keys: AKIAIOSFODNN7EXAMPLE and secret wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
-        status: 'blocked',
-      },
-      {
-        id: 'msg-202',
-        sender: 'system',
-        timestamp: '11:15 AM',
-        content:
-          'REQUEST BLOCKED BY ZEROLEAK GATEWAY (Fail-Closed Policy): Prompt contains AWS Root Secret Credentials. Egress aborted.',
-        status: 'blocked',
-      },
-    ],
-  },
-  {
-    id: 'conv-3',
-    title: 'Next.js Tailwind Component',
-    timestamp: '10:50 AM',
-    timeGroup: 'today',
-    model: 'Gemini 3.8 Flash',
-    status: 'clean',
-    messages: [
-      {
-        id: 'msg-301',
-        sender: 'user',
-        timestamp: '10:50 AM',
-        content: 'Create a clean pricing card component with Tailwind CSS.',
-        status: 'clean',
-      },
-      {
-        id: 'msg-302',
-        sender: 'assistant',
-        timestamp: '10:50 AM',
-        model: 'Gemini 3.8 Flash',
-        status: 'clean',
-        content: 'Here is a responsive pricing table using standard Tailwind utility classes.',
-      },
-    ],
-  },
-  {
-    id: 'conv-4',
-    title: 'AWS S3 Presigned URL Handler',
-    timestamp: 'Yesterday',
-    timeGroup: 'yesterday',
-    model: 'GPT-OSS 120B',
-    status: 'redacted',
-    redactedCount: 2,
-    messages: [],
-  },
-  {
-    id: 'conv-5',
-    title: 'Customer Data Export Script',
-    timestamp: '2d ago',
-    timeGroup: 'previous_7_days',
-    model: 'Claude Opus 4.6',
-    status: 'redacted',
-    redactedCount: 4,
-    messages: [],
-  },
-];
+export const INITIAL_CONVERSATIONS: Conversation[] = [];
 
 export const INITIAL_CATEGORIES: DetectionCategory[] = [
   {
@@ -386,7 +127,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Visa, MasterCard, Amex card numbers with Luhn mod 10 check',
-        matchCount24h: 18,
+        matchCount24h: 0,
       },
       {
         id: 'fin-02',
@@ -399,7 +140,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'International Bank Account Numbers across 70+ jurisdictions',
-        matchCount24h: 12,
+        matchCount24h: 0,
       },
       {
         id: 'fin-03',
@@ -412,7 +153,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Unified Payments Interface virtual payment addresses',
-        matchCount24h: 9,
+        matchCount24h: 0,
       },
       {
         id: 'fin-04',
@@ -425,7 +166,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'Standard format of Business Identifier Codes (BIC)',
-        matchCount24h: 4,
+        matchCount24h: 0,
       },
       {
         id: 'fin-05',
@@ -438,7 +179,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Ethereum 0x addresses and Bitcoin base58 addresses',
-        matchCount24h: 6,
+        matchCount24h: 0,
       },
       {
         id: 'fin-06',
@@ -451,7 +192,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Card verification values in payment payload streams',
-        matchCount24h: 2,
+        matchCount24h: 0,
       },
     ],
   },
@@ -475,7 +216,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'Corporate and personal email addresses',
-        matchCount24h: 64,
+        matchCount24h: 0,
       },
       {
         id: 'pii-02',
@@ -488,7 +229,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: '9-digit US tax and social security identification',
-        matchCount24h: 14,
+        matchCount24h: 0,
       },
       {
         id: 'pii-03',
@@ -501,7 +242,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'International standardized telephone formats',
-        matchCount24h: 22,
+        matchCount24h: 0,
       },
       {
         id: 'pii-04',
@@ -514,7 +255,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Govt issued passport and national identity card numbers',
-        matchCount24h: 8,
+        matchCount24h: 0,
       },
       {
         id: 'pii-05',
@@ -527,7 +268,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'Named entity recognition for human first and last names',
-        matchCount24h: 46,
+        matchCount24h: 0,
       },
       {
         id: 'pii-06',
@@ -540,7 +281,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'State and provincial driver license numbers',
-        matchCount24h: 5,
+        matchCount24h: 0,
       },
       {
         id: 'pii-07',
@@ -553,7 +294,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Protected Health Information patient identifiers',
-        matchCount24h: 1,
+        matchCount24h: 0,
       },
       {
         id: 'pii-08',
@@ -566,7 +307,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'Client residential IP addresses mapping to user identity',
-        matchCount24h: 19,
+        matchCount24h: 0,
       },
       {
         id: 'pii-09',
@@ -579,7 +320,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Physical residential street addresses',
-        matchCount24h: 11,
+        matchCount24h: 0,
       },
       {
         id: 'pii-10',
@@ -592,7 +333,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Full dates of birth associated with customer profiles',
-        matchCount24h: 7,
+        matchCount24h: 0,
       },
     ],
   },
@@ -616,7 +357,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Amazon Web Services programmatic IAM keys',
-        matchCount24h: 34,
+        matchCount24h: 0,
       },
       {
         id: 'sec-02',
@@ -629,7 +370,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Stripe live and test restricted secret keys',
-        matchCount24h: 42,
+        matchCount24h: 0,
       },
       {
         id: 'sec-03',
@@ -642,7 +383,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Connection strings containing username, password, host, and db',
-        matchCount24h: 78,
+        matchCount24h: 0,
       },
       {
         id: 'sec-04',
@@ -655,7 +396,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'PEM formatted private keys and certificate authority secrets',
-        matchCount24h: 38,
+        matchCount24h: 0,
       },
       {
         id: 'sec-05',
@@ -668,7 +409,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'GitHub fine-grained and classic personal access tokens',
-        matchCount24h: 21,
+        matchCount24h: 0,
       },
       {
         id: 'sec-06',
@@ -681,7 +422,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Model provider egress keys accidentally pasted into prompt',
-        matchCount24h: 19,
+        matchCount24h: 0,
       },
       {
         id: 'sec-07',
@@ -694,7 +435,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Slack app bot and workspace access tokens',
-        matchCount24h: 8,
+        matchCount24h: 0,
       },
       {
         id: 'sec-08',
@@ -707,7 +448,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'Google Cloud service account and API access tokens',
-        matchCount24h: 15,
+        matchCount24h: 0,
       },
     ],
   },
@@ -731,7 +472,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'mask',
         enabled: true,
         description: 'JSON Web Tokens signed for API session authorization',
-        matchCount24h: 20,
+        matchCount24h: 0,
       },
       {
         id: 'int-02',
@@ -744,7 +485,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'warn',
         enabled: true,
         description: 'Internal corporate subnets and VPC infrastructure IPs',
-        matchCount24h: 16,
+        matchCount24h: 0,
       },
       {
         id: 'int-03',
@@ -757,7 +498,7 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'default',
         enabled: true,
         description: 'Internal infrastructure DNS names and microservice hosts',
-        matchCount24h: 11,
+        matchCount24h: 0,
       },
       {
         id: 'int-04',
@@ -770,14 +511,14 @@ export const INITIAL_CATEGORIES: DetectionCategory[] = [
         actionOverride: 'block',
         enabled: true,
         description: 'Cluster orchestration secret keys and service tokens',
-        matchCount24h: 3,
+        matchCount24h: 0,
       },
     ],
   },
 ];
 
 /**
- * Mock ZeroLeak Inspection Engine
+ * Clean ZeroLeak Inspection Engine
  * Detects sensitive entities safely in browser memory without sending secrets anywhere.
  */
 export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]): InspectionResult {
@@ -788,7 +529,7 @@ export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]):
   let sanitized = text;
   let counter = 1;
 
-  // Patterns to evaluate
+  // Genuine built-in security detection patterns
   const patterns: {
     type: string;
     category: 'pii' | 'financial' | 'secrets' | 'internal';
@@ -799,7 +540,7 @@ export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]):
     placeholderPrefix: string;
   }[] = [
     {
-      type: 'Stripe Live Secret Key',
+      type: 'Stripe Secret Key',
       category: 'secrets',
       regex: /(?:sk|rk)_(?:live|test)_[0-9a-zA-Z_]{16,}/g,
       severity: 'critical',
@@ -815,15 +556,6 @@ export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]):
       action: 'mask',
       detector: 'Database URI Pattern',
       placeholderPrefix: 'DATABASE_CREDENTIAL',
-    },
-    {
-      type: 'AWS Root Secret Key',
-      category: 'secrets',
-      regex: /(?:wJalrXUtnFEMI\/K7MDENG\/bPxRfiCYEXAMPLEKEY|[A-Za-z0-9/+=]{40})/g,
-      severity: 'critical',
-      action: 'block',
-      detector: 'Gitleaks CLI',
-      placeholderPrefix: 'AWS_ROOT_SECRET',
     },
     {
       type: 'AWS Access Key ID',
@@ -883,16 +615,16 @@ export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]):
       const matchedValue = match[0];
       const placeholder = `<${p.placeholderPrefix}_${counter}>`;
 
-      // Safe synthetic masked representation (never display entire raw secret)
+      // Safe synthetic masked representation
       const maskedLength = matchedValue.length;
       const originalMasked =
         maskedLength > 8
           ? `${matchedValue.substring(0, 3)}••••••••••••${matchedValue.substring(maskedLength - 3)}`
           : '••••••••';
 
-      if (p.action === 'block' || matchedValue.includes('EXAMPLEKEY') || p.type.includes('AWS Root')) {
+      if (p.action === 'block') {
         shouldBlock = true;
-        blockReason = `Hard-blocked critical secret: ${p.type}`;
+        blockReason = `Hard-blocked critical token: ${p.type}`;
       }
 
       entities.push({
@@ -940,38 +672,6 @@ export function inspectAndRedactText(text: string, currentRules?: PolicyRule[]):
     recommendedAction: shouldBlock ? 'block' : hasSensitiveData ? 'mask' : 'allow',
     blocked: shouldBlock,
     blockedReason: blockReason,
-    latencyMs: Math.floor(Math.random() * 8) + 6,
-  };
-}
-
-/**
- * Generate simulated safe AI response
- */
-export function getSimulatedAiResponse(sanitizedPrompt: string, model: string): {
-  content: string;
-  remediationSnippet?: { title: string; code: string; language: string };
-  securityNote?: string;
-} {
-  return {
-    content: `I have analyzed your sanitized query via ${model}.
-
-The configuration or code logic demonstrates standard modular patterns, but notice that secrets and credentials must strictly be delegated to runtime environment parameters rather than embedded in code or prompt context.
-
-Here is the secure implementation:`,
-    remediationSnippet: {
-      title: 'Remediation: Hardened Environment Variable Wrapper',
-      language: 'typescript',
-      code: `// VibeProofLens Automated Security Fix
-import { config } from 'dotenv';
-config();
-
-export const securityConfig = {
-  apiKey: process.env.SERVICE_API_KEY ?? '',
-  databaseUrl: process.env.DATABASE_URL ?? '',
-  timeoutMs: 5000,
-};`,
-    },
-    securityNote:
-      'ZeroLeak Gateway verified: External provider received 0 plaintext credentials. Ephemeral memory map will safely restore authorized surrogates upon client-side application.',
+    latencyMs: Math.floor(Math.random() * 6) + 4,
   };
 }
