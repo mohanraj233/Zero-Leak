@@ -14,7 +14,7 @@ const envSchema = z.object({
 
   // Google Gemini API Key and Model configuration
   GEMINI_API_KEY: z.string().optional().default(''),
-  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+  GEMINI_MODEL: z.string().default('gemini-3.8-flash'),
 
   // Internal Python FastAPI Presidio Service
   PRESIDIO_SERVICE_URL: z.string().default('http://localhost:8000'),

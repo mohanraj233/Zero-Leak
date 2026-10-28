@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased bg-slate-100">
-      <body className="h-full flex flex-col font-sans bg-slate-100 text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+    <html lang="en" className="h-full antialiased bg-slate-100" suppressHydrationWarning>
+      <body className="h-full flex flex-col font-sans bg-slate-100 text-slate-900 selection:bg-blue-100 selection:text-blue-900" suppressHydrationWarning>
         <ZeroLeakProvider>
           <div className="flex h-screen overflow-hidden">
             {/* Left Sidebar */}

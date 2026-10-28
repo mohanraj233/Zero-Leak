@@ -24,10 +24,10 @@ export function ZeroLeakHeader({
   const { selectedModel, setSelectedModel, setAuditModalOpen } = useZeroLeak();
 
   const modelOptions = [
-    'Gemini 3.8 Flash (Server Proxy)',
-    'Claude 3.5 Sonnet (Proxy)',
-    'GPT-OSS 120B (Proxy)',
-    'Claude Opus 4.6 (Proxy)',
+    'gemini-3.8-flash',
+    'claude-3-5-sonnet',
+    'gpt-oss-120b',
+    'claude-opus-4-6',
   ];
 
   return (

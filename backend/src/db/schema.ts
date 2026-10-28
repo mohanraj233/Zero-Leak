@@ -125,7 +125,7 @@ export const chatSessions = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 255 }).notNull(),
     provider: varchar('provider', { length: 100 }).default('Google Gemini').notNull(),
-    model: varchar('model', { length: 100 }).default('gemini-2.5-flash').notNull(),
+    model: varchar('model', { length: 100 }).default('gemini-3.8-flash').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -169,7 +169,7 @@ export const zeroLeakAuditLogs = pgTable(
     requestId: varchar('request_id', { length: 128 }).notNull(),
     operation: varchar('operation', { length: 100 }).notNull(), // 'INSPECT', 'REDACT', 'AI_CHAT', 'FILE_SCAN'
     provider: varchar('provider', { length: 100 }).default('Google Gemini'),
-    model: varchar('model', { length: 100 }).default('gemini-2.5-flash'),
+    model: varchar('model', { length: 100 }).default('gemini-3.8-flash'),
     detectedCount: integer('detected_count').default(0).notNull(),
     redactedCount: integer('redacted_count').default(0).notNull(),
     policyAction: varchar('policy_action', { length: 50 }).notNull(), // 'mask', 'block', 'allow', 'warn'
@@ -195,7 +195,7 @@ export const userSettings = pgTable(
       .references(() => users.id, { onDelete: 'cascade' })
       .unique(),
     defaultProvider: varchar('default_provider', { length: 100 }).default('Google Gemini').notNull(),
-    defaultModel: varchar('default_model', { length: 100 }).default('gemini-2.5-flash').notNull(),
+    defaultModel: varchar('default_model', { length: 100 }).default('gemini-3.8-flash').notNull(),
     redactionPolicy: varchar('redaction_policy', { length: 50 }).default('mask_reversible').notNull(),
     historyEnabled: boolean('history_enabled').default(true).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),

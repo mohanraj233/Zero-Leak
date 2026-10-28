@@ -70,7 +70,7 @@ export function ZeroLeakProvider({ children }: { children: ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
   const [activeConversationId, setActiveConversationId] = useState<string>('');
   const [activityLogs, setActivityLogs] = useState<ActivityLogItem[]>(INITIAL_ACTIVITY_LOGS);
-  const [selectedModel, setSelectedModel] = useState<string>('Gemini 3.8 Flash (Server Proxy)');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.8-flash');
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [inspectModalEntity, setInspectModalEntity] = useState<SensitiveEntity[] | null>(null);
   const [regexModalOpen, setRegexModalOpen] = useState<boolean>(false);

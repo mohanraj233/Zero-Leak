@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 const router = Router();
 
 const chatRequestSchema = z.object({
-  model: z.string().optional().default('gemini-2.5-flash'),
+  model: z.string().optional().default('gemini-3.8-flash'),
   prompt: z.string().min(1, 'Prompt cannot be empty').max(30000, 'Prompt exceeds 30KB limit'),
   sessionId: z.string().optional(),
   contextId: z.string().optional(),

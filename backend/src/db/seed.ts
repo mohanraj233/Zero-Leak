@@ -48,7 +48,7 @@ export async function seedDatabase() {
         id: 'settings-default-01',
         userId: defaultUserId,
         defaultProvider: 'Google Gemini',
-        defaultModel: 'gemini-2.5-flash',
+        defaultModel: 'gemini-3.8-flash',
         redactionPolicy: 'mask_reversible',
         historyEnabled: true,
       })

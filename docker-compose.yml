@@ -38,7 +38,7 @@ services:
       PRESIDIO_SERVICE_URL: http://file-processor:8000
       INTERNAL_SERVICE_TOKEN: zeroleak_dev_internal_token_secure_sandbox
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: gemini-2.5-flash
+      GEMINI_MODEL: gemini-3.8-flash
     ports:
       - "4000:4000"
     depends_on:

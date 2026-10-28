@@ -46,7 +46,7 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
   try {
     const bodySchema = z.object({
       title: z.string().min(1).max(255).default('New Session'),
-      model: z.string().default('gemini-2.5-flash'),
+      model: z.string().default('gemini-3.8-flash'),
     });
 
     const { title, model } = bodySchema.parse(req.body);

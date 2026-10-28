@@ -35,7 +35,22 @@ export class GeminiService {
     sanitizedPrompt: string,
     modelOverride?: string
   ): Promise<GeminiChatResponse> {
-    const selectedModel = modelOverride || env.GEMINI_MODEL;
+    let selectedModel = (modelOverride || env.GEMINI_MODEL || 'gemini-3.8-flash').trim();
+
+    // Ensure exact API ID is used and clean any legacy proxy suffixes or display wrappers
+    if (
+      selectedModel.toLowerCase().includes('gemini-3.8') ||
+      selectedModel.toLowerCase().includes('gemini 3.8')
+    ) {
+      selectedModel = 'gemini-3.8-flash';
+    } else if (
+      selectedModel.toLowerCase().includes('gemini-2.5') ||
+      selectedModel.toLowerCase().includes('gemini 2.5')
+    ) {
+      selectedModel = 'gemini-3.8-flash';
+    } else if (selectedModel.includes('(Server Proxy)') || selectedModel.includes('(Proxy)')) {
+      selectedModel = selectedModel.replace(/\s*\((?:Server\s+)?Proxy\)/gi, '').trim();
+    }
 
     // Fail-closed fallback when API key is missing
     if (!this.isConfigured || !this.client) {

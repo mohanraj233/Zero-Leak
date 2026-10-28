@@ -34,7 +34,7 @@ export class AuditService {
         requestId: params.requestId,
         operation: params.operation,
         provider: params.provider || 'Google Gemini',
-        model: params.model || 'gemini-2.5-flash',
+        model: params.model || 'gemini-3.8-flash',
         detectedCount: params.detectedCount,
         redactedCount: params.redactedCount,
         policyAction: params.policyAction,
@@ -85,7 +85,7 @@ export class AuditService {
           riskLevel,
           actionEnforced: r.policyAction as PolicyAction,
           gatewayStatus: r.outcome as ActivityLogItem['gatewayStatus'],
-          model: r.model || 'gemini-2.5-flash',
+          model: r.model || 'gemini-3.8-flash',
           latencyMs: r.latencyMs,
         };
       });

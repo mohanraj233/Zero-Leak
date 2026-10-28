@@ -22,7 +22,7 @@ router.get('/settings', async (req: Request, res: Response, next: NextFunction) 
         requestId: req.requestId,
         settings: {
           defaultProvider: 'Google Gemini',
-          defaultModel: 'gemini-2.5-flash',
+          defaultModel: 'gemini-3.8-flash',
           redactionPolicy: 'mask_reversible',
           historyEnabled: true,
         },
@@ -69,7 +69,7 @@ router.patch('/settings', async (req: Request, res: Response, next: NextFunction
       await db.insert(schema.userSettings).values({
         id: `settings-${req.user.id}`,
         userId: req.user.id,
-        defaultModel: data.defaultModel || 'gemini-2.5-flash',
+        defaultModel: data.defaultModel || 'gemini-3.8-flash',
         defaultProvider: data.defaultProvider || 'Google Gemini',
         redactionPolicy: data.redactionPolicy || 'mask_reversible',
         historyEnabled: data.historyEnabled ?? true,
