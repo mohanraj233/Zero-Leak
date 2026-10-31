@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { redactionService } from '../services/redaction.service.js';
-import { geminiService } from '../services/gemini.service.js';
+import { geminiService, resolveModel } from '../services/gemini.service.js';
 import { responseInspectionService } from '../services/response-inspection.service.js';
 import { placeholderService } from '../services/placeholder.service.js';
 import { auditService } from '../services/audit.service.js';
@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 const router = Router();
 
 const chatRequestSchema = z.object({
-  model: z.string().optional().default('gemini-3.8-flash'),
+  model: z.string().optional(),
   prompt: z.string().min(1, 'Prompt cannot be empty').max(30000, 'Prompt exceeds 30KB limit'),
   sessionId: z.string().optional(),
   contextId: z.string().optional(),
@@ -22,7 +22,8 @@ router.post('/ai-chat', strictChatLimiter, async (req: Request, res: Response, n
   const startTime = performance.now();
 
   try {
-    const { model, prompt, sessionId } = chatRequestSchema.parse(req.body);
+    const { model: requestedModel, prompt, sessionId } = chatRequestSchema.parse(req.body);
+    const authoritativeModel = resolveModel(requestedModel);
 
     // 1. Redact input prompt and acquire ephemeral mapping
     const redaction = await redactionService.sanitizePayload(
@@ -42,7 +43,7 @@ router.post('/ai-chat', strictChatLimiter, async (req: Request, res: Response, n
         requestId: req.requestId,
         operation: 'AI_CHAT',
         provider: 'Google Gemini',
-        model,
+        model: authoritativeModel,
         detectedCount: redaction.detectedCount,
         redactedCount: 0,
         policyAction: 'block',
@@ -63,27 +64,38 @@ router.post('/ai-chat', strictChatLimiter, async (req: Request, res: Response, n
       return;
     }
 
-    // 3. Call Google Gemini with SANITIZED content ONLY
-    const aiResponse = await geminiService.generateChatCompletion(
-      redaction.sanitizedText,
-      model
-    );
+    let finalContent = '';
+    let aiResponse: Awaited<ReturnType<typeof geminiService.generateChatCompletion>>;
+    let responseCheck: ReturnType<typeof responseInspectionService.inspectModelResponse>;
+    let mappingReleased = false;
 
-    // 4. Scan AI Response for newly leaked credentials or echoes
-    const responseCheck = responseInspectionService.inspectModelResponse(aiResponse.content);
-
-    // 5. Restore ONLY permitted placeholders (PII) if mapping exists
-    let finalContent = responseCheck.sanitizedResponse;
-    if (redaction.mappingHandle) {
-      const restoration = placeholderService.restorePermittedPlaceholders(
-        finalContent,
-        redaction.mappingHandle,
-        req.user.id,
-        req.user.organizationId
+    try {
+      // 3. Call Google Gemini with SANITIZED content ONLY using authoritative model
+      aiResponse = await geminiService.generateChatCompletion(
+        redaction.sanitizedText,
+        authoritativeModel
       );
-      finalContent = restoration.restoredText;
-      // Explicitly release ephemeral mapping after request finishes
-      placeholderService.releaseMapping(redaction.mappingHandle);
+
+      // 4. Scan AI Response for newly leaked credentials or echoes
+      responseCheck = responseInspectionService.inspectModelResponse(aiResponse.content);
+      finalContent = responseCheck.sanitizedResponse;
+
+      // 5. Restore ONLY permitted placeholders (PII) if mapping exists and response is safe
+      if (redaction.mappingHandle && !aiResponse.content.includes('[ZeroLeak Gateway: Provider Error]')) {
+        const restoration = placeholderService.restorePermittedPlaceholders(
+          finalContent,
+          redaction.mappingHandle,
+          req.user.id,
+          req.user.organizationId
+        );
+        finalContent = restoration.restoredText;
+      }
+    } finally {
+      // Ephemeral mapping cleanup guaranteed in finally block even on provider errors
+      if (redaction.mappingHandle && !mappingReleased) {
+        placeholderService.releaseMapping(redaction.mappingHandle);
+        mappingReleased = true;
+      }
     }
 
     const latencyMs = Math.round(performance.now() - startTime);
@@ -121,7 +133,7 @@ router.post('/ai-chat', strictChatLimiter, async (req: Request, res: Response, n
       requestId: req.requestId,
       operation: 'AI_CHAT',
       provider: 'Google Gemini',
-      model,
+      model: authoritativeModel,
       detectedCount: redaction.detectedCount,
       redactedCount: redaction.redactedCount,
       policyAction: redaction.action,

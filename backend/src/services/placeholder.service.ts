@@ -166,6 +166,13 @@ export class PlaceholderService {
     this.contexts.delete(mappingHandle);
   }
 
+  /**
+   * Check if a mapping handle exists and is active
+   */
+  public hasMapping(mappingHandle: string): boolean {
+    return this.contexts.has(mappingHandle);
+  }
+
   private cleanupExpired(): void {
     const now = Date.now();
     for (const [handle, ctx] of this.contexts.entries()) {

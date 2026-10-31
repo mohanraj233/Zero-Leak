@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { getDb, schema } from '../db/index.js';
 import { eq } from 'drizzle-orm';
+import { env } from '../config/env.js';
+import { resolveModel } from '../services/gemini.service.js';
 import { policyService } from '../services/policy.service.js';
 import { PolicyRule } from '../types/index.js';
 
@@ -22,7 +24,7 @@ router.get('/settings', async (req: Request, res: Response, next: NextFunction) 
         requestId: req.requestId,
         settings: {
           defaultProvider: 'Google Gemini',
-          defaultModel: 'gemini-3.8-flash',
+          defaultModel: resolveModel(env.GEMINI_MODEL),
           redactionPolicy: 'mask_reversible',
           historyEnabled: true,
         },
@@ -57,11 +59,17 @@ router.patch('/settings', async (req: Request, res: Response, next: NextFunction
       .from(schema.userSettings)
       .where(eq(schema.userSettings.userId, req.user.id));
 
+    const resolvedPatchModel = data.defaultModel ? resolveModel(data.defaultModel) : undefined;
+    const sanitizedData = {
+      ...data,
+      ...(resolvedPatchModel ? { defaultModel: resolvedPatchModel } : {}),
+    };
+
     if (existing.length > 0) {
       await db
         .update(schema.userSettings)
         .set({
-          ...data,
+          ...sanitizedData,
           updatedAt: new Date(),
         })
         .where(eq(schema.userSettings.userId, req.user.id));
@@ -69,7 +77,7 @@ router.patch('/settings', async (req: Request, res: Response, next: NextFunction
       await db.insert(schema.userSettings).values({
         id: `settings-${req.user.id}`,
         userId: req.user.id,
-        defaultModel: data.defaultModel || 'gemini-3.8-flash',
+        defaultModel: resolvedPatchModel || resolveModel(env.GEMINI_MODEL),
         defaultProvider: data.defaultProvider || 'Google Gemini',
         redactionPolicy: data.redactionPolicy || 'mask_reversible',
         historyEnabled: data.historyEnabled ?? true,
@@ -79,7 +87,7 @@ router.patch('/settings', async (req: Request, res: Response, next: NextFunction
     res.json({
       requestId: req.requestId,
       success: true,
-      updated: data,
+      updated: sanitizedData,
     });
   } catch (err) {
     next(err);

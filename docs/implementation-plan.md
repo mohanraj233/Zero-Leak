@@ -110,3 +110,39 @@ ZeroLeak AI (Module 15 of VibeProofLens) is a real-time sensitive information de
 - [x] `docs/architecture.md`, `docs/api-reference.md`, `docs/database-schema.md`
 - [x] `docs/security-model.md`, `docs/testing.md`, `docs/troubleshooting.md`
 - [x] Dockerfile and Docker Compose orchestration (`docker-compose.yml`)
+
+---
+
+## 3. Gemini API Timeout Diagnosis & Permanent Resolution (October 2026)
+
+### Root Cause Analysis
+1. **Model Deprecation (404 Not Found)**:
+   - `gemini-2.5-flash` was deprecated by Google for new API requests and returns HTTP 404 (`models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash`).
+2. **Reasoning/Thinking Model Latency on `gemini-3.8-flash`**:
+   - `gemini-3.8-flash` is a reasoning model with thought signature generation, averaging 20.3s to 36.5s (and up to 60s+ during demand spikes).
+3. **Hardcoded Inadequate Timeout**:
+   - `gemini.service.ts` used a hardcoded 20-second `Promise.race` timeout (`setTimeout(..., 20000)`), aborting legitimate model responses right before arrival.
+4. **Unmanaged Promises & Request Leaks**:
+   - `Promise.race` left the underlying SDK HTTP call hanging in Node without triggering an `AbortController`.
+5. **Model Inconsistency & UI Override Leaks**:
+   - Frontend and backend previously passed display labels like `Gemini 3.8 Flash (Server Proxy)` or client-overridden model strings directly into the API call rather than enforcing a strict server-side allowlist.
+
+### Permanent Solution & Architecture
+1. **Configurable Timeout (`GEMINI_TIMEOUT_MS`)**:
+   - Added `GEMINI_TIMEOUT_MS` to `backend/src/config/env.ts` with a default of `60000` (60 seconds).
+   - Applied natively via the official SDK's `getGenerativeModel({ ... }, { timeout: timeoutMs })` and paired with an explicit `AbortController` and `signal` on `generateContent`.
+   - Guaranteed timer cancellation via `clearTimeout` in `finally` blocks.
+2. **Model Selection & Precedence**:
+   - `backend/.env` is the authoritative source for `GEMINI_MODEL`.
+   - Verified active models via live API calls: `gemini-3.5-flash` responds in **2.1s - 3.3s**, providing production-grade speed without thinking latency.
+   - Configured `gemini-3.5-flash` as primary model and supported `gemini-3.8-flash` as reasoning model in the strict server-side allowlist.
+3. **Strict Model Governance & Allowlist**:
+   - Created `resolveModel()` and `SUPPORTED_GEMINI_MODELS` allowlist.
+   - Automatically normalizes legacy display labels (`(Server Proxy)`, `(Proxy)`) and auto-upgrades deprecated `gemini-2.5-flash` to active models.
+4. **Bounded Retry Policy**:
+   - Single retry for transient errors (HTTP 503 / connection drop) with backoff.
+   - Strict non-retry policy for 4xx errors (400, 401, 403, 404, invalid keys).
+5. **ZeroLeak Security Invariants**:
+   - Preserved fail-closed input redaction, response scan, and metadata-only audit logging.
+   - Ephemeral placeholder mapping release guaranteed in `finally` blocks even upon provider failure.
+

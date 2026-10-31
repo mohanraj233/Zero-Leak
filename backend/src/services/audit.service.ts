@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDb, schema } from '../db/index.js';
 import { desc, eq, sql } from 'drizzle-orm';
 import { ActivityLogItem, DashboardMetrics, PolicyAction } from '../types/index.js';
+import { resolveModel } from './gemini.service.js';
 
 export interface RecordAuditParams {
   organizationId: string;
@@ -34,7 +35,7 @@ export class AuditService {
         requestId: params.requestId,
         operation: params.operation,
         provider: params.provider || 'Google Gemini',
-        model: params.model || 'gemini-3.8-flash',
+        model: resolveModel(params.model),
         detectedCount: params.detectedCount,
         redactedCount: params.redactedCount,
         policyAction: params.policyAction,
@@ -85,7 +86,7 @@ export class AuditService {
           riskLevel,
           actionEnforced: r.policyAction as PolicyAction,
           gatewayStatus: r.outcome as ActivityLogItem['gatewayStatus'],
-          model: r.model || 'gemini-3.8-flash',
+          model: resolveModel(r.model || undefined),
           latencyMs: r.latencyMs,
         };
       });

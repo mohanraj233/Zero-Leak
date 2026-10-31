@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getDb, schema } from '../db/index.js';
 import { eq, desc, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { resolveModel } from '../services/gemini.service.js';
 
 const router = Router();
 
@@ -50,6 +51,7 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
     });
 
     const { title, model } = bodySchema.parse(req.body);
+    const resolvedModel = resolveModel(model);
     const id = `conv-${uuidv4()}`;
     const db = getDb();
 
@@ -58,7 +60,7 @@ router.post('/history', async (req: Request, res: Response, next: NextFunction) 
       organizationId: req.user.organizationId,
       userId: req.user.id,
       title,
-      model,
+      model: resolvedModel,
     });
 
     res.status(201).json({
